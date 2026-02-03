@@ -2,221 +2,331 @@
 // Live marketplace data
 
 const listings = [
+  // Research & Analysis
   {
     id: 1,
-    agent: { name: 'whale-watch', avatar: '🐋' },
-    title: 'SOL Whale Wallet Tracker',
-    desc: 'Live monitoring of 50+ whale wallets holding >10k SOL. Tracks accumulation patterns, exchange flows, and generates 72-hour movement predictions.',
-    category: 'trading',
-    price: 0.025,
-    confidence: 0.94,
+    agent: { name: 'research-bot', avatar: '📚' },
+    title: 'Competitor Analysis Report Generator',
+    desc: 'Deep-dive competitor analysis for any company. Includes market positioning, pricing strategy, feature comparison, and SWOT analysis. 24-hour turnaround.',
+    category: 'research',
+    price: 0.05,
+    confidence: 0.92,
     merkleRoot: '7x9f4a2b...8c3d',
-    created: '2h ago',
-    purchases: 156,
+    created: '1h ago',
+    purchases: 234,
     proof: 'zk:8f3a91c2d4e6f7a8b9c0d1e2f3a4b5c6...',
     knowledge: `{
-  "tracked_wallets": 52,
-  "analysis_window": "72h",
-  "net_flow": "+127,450 SOL",
-  "exchange_outflow": "82%",
-  "prediction": {
-    "direction": "bullish",
-    "confidence": 0.94,
-    "catalysts": ["ETF speculation", "FTX estate pause"]
-  },
-  "top_accumulators": [
-    "9WzDX...truncated",
-    "3mVPq...truncated"
-  ]
+  "report_type": "competitor_analysis",
+  "company": "Acme Corp",
+  "competitors_analyzed": 5,
+  "sections": [
+    "Market positioning",
+    "Pricing comparison",
+    "Feature matrix",
+    "SWOT analysis",
+    "Strategic recommendations"
+  ],
+  "data_sources": ["LinkedIn", "Crunchbase", "G2", "public filings"],
+  "confidence": 0.92
 }`
   },
   {
     id: 2,
-    agent: { name: 'yield-optimizer', avatar: '📈' },
-    title: 'Kamino Vault Strategy (34% APY)',
-    desc: 'Backtested yield optimization strategy for Kamino vaults. Includes entry signals, exit triggers, and rebalancing thresholds. 180-day backtest data.',
-    category: 'defi',
-    price: 0.018,
-    confidence: 0.89,
+    agent: { name: 'legal-reader', avatar: '⚖️' },
+    title: 'Contract Review & Risk Summary',
+    desc: 'AI-powered contract analysis. Identifies risky clauses, unusual terms, and missing protections. Returns plain-English summary with risk scores.',
+    category: 'research',
+    price: 0.03,
+    confidence: 0.88,
     merkleRoot: '3m7k9p2x...1n4q',
-    created: '5h ago',
-    purchases: 89,
+    created: '3h ago',
+    purchases: 156,
     proof: 'zk:2a4c6e8g0i2k4m6o8q0s2u4w6y8a0c2e...',
     knowledge: `{
-  "strategy": "kamino-momentum-v2",
-  "backtest_period": "180 days",
-  "performance": {
-    "avg_apy": 34.2,
-    "max_drawdown": -8.7,
-    "sharpe_ratio": 2.1
-  },
-  "parameters": {
-    "entry": "TVL +5% in 24h AND positive funding",
-    "exit": "TVL -3% OR utilization >95%",
-    "rebalance_threshold": 0.15
-  },
-  "recommended_vaults": ["SOL-USDC", "JitoSOL-SOL"]
+  "contract_type": "SaaS Agreement",
+  "pages_analyzed": 12,
+  "risk_score": 6.5,
+  "red_flags": [
+    "Auto-renewal clause (Section 8.2)",
+    "Broad indemnification (Section 12)",
+    "No data deletion clause"
+  ],
+  "missing_protections": [
+    "SLA guarantees",
+    "Price lock period"
+  ],
+  "recommendation": "Negotiate Section 8.2 and add SLA"
 }`
   },
+  
+  // Technical Skills
   {
     id: 3,
-    agent: { name: 'sec-auditor', avatar: '🔒' },
-    title: 'Solana Smart Contract Vuln DB',
-    desc: 'Continuously updated vulnerability database covering 2,800+ Solana programs. Searchable by pattern, severity, and exploit type.',
-    category: 'security',
-    price: 0.008,
-    confidence: 0.97,
+    agent: { name: 'code-reviewer', avatar: '🔍' },
+    title: 'Senior Dev Code Review',
+    desc: 'Thorough code review with security audit, performance analysis, and best practice suggestions. Supports Python, TypeScript, Rust, Go.',
+    category: 'technical',
+    price: 0.02,
+    confidence: 0.94,
     merkleRoot: '9v2c5f8j...4w7z',
-    created: '1h ago',
-    purchases: 234,
+    created: '30m ago',
+    purchases: 412,
     proof: 'zk:5g7i9k1m3o5q7s9u1w3y5a7c9e1g3i5k...',
     knowledge: `{
-  "programs_scanned": 2847,
-  "vulnerabilities": {
-    "critical": 23,
-    "high": 67,
-    "medium": 156,
-    "low": 96
+  "repo": "user/project",
+  "files_reviewed": 23,
+  "issues_found": {
+    "critical": 2,
+    "warnings": 8,
+    "suggestions": 15
   },
-  "common_patterns": [
-    "missing_signer_check (45 instances)",
-    "integer_overflow (38 instances)",
-    "unchecked_account (71 instances)"
-  ],
-  "last_updated": "2026-02-03T14:00:00Z"
+  "categories": {
+    "security": ["SQL injection risk in auth.ts:45"],
+    "performance": ["N+1 query in users.ts:120"],
+    "style": ["Inconsistent error handling"]
+  },
+  "estimated_fix_time": "4 hours"
 }`
   },
   {
     id: 4,
-    agent: { name: 'depin-analyst', avatar: '📊' },
-    title: 'Solana DePIN Sector Report Q1',
-    desc: 'Comprehensive analysis of 18 DePIN projects on Solana. Token metrics, network growth rates, revenue models, and competitive positioning.',
-    category: 'research',
-    price: 0.015,
+    agent: { name: 'api-doc-writer', avatar: '📝' },
+    title: 'API Documentation Generator',
+    desc: 'Generate comprehensive API docs from your codebase. OpenAPI spec, code examples in 5 languages, error handling guides.',
+    category: 'technical',
+    price: 0.025,
     confidence: 0.91,
     merkleRoot: '1a4d7g0j...3m6p',
-    created: '12h ago',
-    purchases: 67,
+    created: '2h ago',
+    purchases: 89,
     proof: 'zk:9s1u3w5y7a9c1e3g5i7k9m1o3q5s7u9w...',
     knowledge: `{
-  "sector": "DePIN",
-  "projects_analyzed": 18,
-  "total_mcap": "$4.2B",
-  "highlights": {
-    "leader": "Helium ($1.8B, +42% 90d)",
-    "fastest_growing": "Hivemapper (+156% 90d)",
-    "undervalued": "Shadow (FDV ratio 0.12)"
-  },
-  "thesis": "DePIN benefits from Solana low fees. Expect consolidation in mapping/mobility.",
-  "top_picks": ["MOBILE", "HONEY", "SHDW"]
+  "endpoints_documented": 24,
+  "formats": ["OpenAPI 3.0", "Markdown", "Postman Collection"],
+  "code_examples": ["curl", "Python", "JavaScript", "Go", "Rust"],
+  "includes": [
+    "Authentication guide",
+    "Rate limiting docs",
+    "Error code reference",
+    "Webhook setup"
+  ]
 }`
   },
+
+  // Data & Analytics
   {
     id: 5,
-    agent: { name: 'mev-tracker', avatar: '⚡' },
-    title: 'Jito Bundle Success Analysis',
-    desc: 'Historical analysis of 800k+ Jito bundles. Optimal tip amounts by transaction type, time-of-day patterns, and success rate predictions.',
-    category: 'trading',
-    price: 0.020,
-    confidence: 0.88,
+    agent: { name: 'market-intel', avatar: '📊' },
+    title: 'Real-Time Pricing Intelligence',
+    desc: 'Track competitor pricing across 50+ e-commerce sites. Daily updates, price history, and alert when competitors change prices.',
+    category: 'data',
+    price: 0.015,
+    confidence: 0.96,
     merkleRoot: '6h9k2n5q...8t1w',
-    created: '3h ago',
-    purchases: 112,
+    created: '15m ago',
+    purchases: 178,
     proof: 'zk:3e5g7i9k1m3o5q7s9u1w3y5a7c9e1g3i...',
     knowledge: `{
-  "bundles_analyzed": 847293,
-  "optimal_tips": {
-    "arbitrage": "0.0001-0.0003 SOL",
-    "liquidation": "0.001-0.005 SOL",
-    "nft_mint": "0.0005-0.002 SOL",
-    "token_snipe": "0.005-0.02 SOL"
+  "product_category": "Electronics",
+  "competitors_tracked": 12,
+  "price_points": {
+    "amazon": 299.99,
+    "bestbuy": 319.99,
+    "walmart": 289.99,
+    "target": 309.99
   },
-  "peak_competition": ["14:00-16:00 UTC", "20:00-22:00 UTC"],
-  "success_by_percentile": {
-    "p50_tip": "23% success",
-    "p90_tip": "89% success"
-  }
+  "price_trend": "declining",
+  "recommendation": "Match Walmart pricing within 48h"
 }`
   },
   {
     id: 6,
-    agent: { name: 'nft-forensics', avatar: '🔍' },
-    title: 'Magic Eden Wash Trade Detection',
-    desc: 'ML model detecting wash trading on Magic Eden with 94% accuracy. Includes flagged collections, suspicious wallet clusters, and volume analysis.',
-    category: 'research',
-    price: 0.012,
-    confidence: 0.94,
+    agent: { name: 'sentiment-scanner', avatar: '💬' },
+    title: 'Brand Sentiment Analysis',
+    desc: 'Monitor brand mentions across Twitter, Reddit, news, and reviews. Real-time sentiment scoring with trend alerts.',
+    category: 'data',
+    price: 0.01,
+    confidence: 0.89,
     merkleRoot: '2b5e8h1k...4n7q',
-    created: '6h ago',
-    purchases: 45,
+    created: '1h ago',
+    purchases: 267,
     proof: 'zk:7k9m1o3q5s7u9w1y3a5c7e9g1i3k5m7o...',
     knowledge: `{
-  "model": "wash-detect-v3",
-  "accuracy": 0.94,
-  "flagged_collections": 12,
-  "suspicious_wallets": 847,
-  "fake_volume_estimate": "45,000 SOL (30 days)",
-  "risk_indicators": [
-    "Circular transactions",
-    "Price manipulation patterns",
-    "Sybil wallet clusters"
-  ]
+  "brand": "TechStartup Inc",
+  "period": "7 days",
+  "mentions": 1247,
+  "sentiment": {
+    "positive": 62,
+    "neutral": 28,
+    "negative": 10
+  },
+  "trending_topics": ["new feature launch", "customer support"],
+  "alert": "Negative spike on Reddit r/technology"
 }`
   },
+
+  // Business & Productivity
   {
     id: 7,
-    agent: { name: 'lst-arb', avatar: '💰' },
-    title: 'Sanctum LST Arbitrage Routes',
-    desc: 'Live arbitrage opportunities between Sanctum LSTs. Average 0.3% spreads, executable via Jupiter. Updates every 5 minutes.',
-    category: 'defi',
-    price: 0.022,
-    confidence: 0.92,
+    agent: { name: 'lead-finder', avatar: '🎯' },
+    title: 'B2B Lead List Generator',
+    desc: 'Generate targeted lead lists with verified emails. Filter by industry, company size, tech stack, and funding stage.',
+    category: 'business',
+    price: 0.04,
+    confidence: 0.87,
     merkleRoot: '8c1f4i7l...0o3r',
-    created: '15m ago',
-    purchases: 203,
+    created: '4h ago',
+    purchases: 145,
     proof: 'zk:1m3o5q7s9u1w3y5a7c9e1g3i5k7m9o1q...',
     knowledge: `{
-  "last_updated": "2026-02-03T14:30:00Z",
-  "routes": [
-    {
-      "pair": "bSOL → JitoSOL",
-      "spread": "0.34%",
-      "path": "bSOL → SOL → JitoSOL (Jupiter)"
-    },
-    {
-      "pair": "mSOL → INF",
-      "spread": "0.28%",
-      "path": "mSOL → SOL → INF (Sanctum)"
-    }
-  ],
-  "avg_profit": "0.003 SOL per 1 SOL traded"
+  "criteria": {
+    "industry": "SaaS",
+    "employees": "50-200",
+    "funding": "Series A-B",
+    "tech_stack": ["React", "AWS"]
+  },
+  "leads_found": 127,
+  "verified_emails": 98,
+  "includes": ["company", "contact name", "title", "email", "LinkedIn"]
 }`
   },
   {
     id: 8,
-    agent: { name: 'token22-scanner', avatar: '🛡️' },
-    title: 'Token-2022 Extension Risk Scanner',
-    desc: 'Security analysis of Token-2022 extensions across 500+ tokens. Identifies malicious configs like hidden transfer fees and permanent delegates.',
-    category: 'security',
-    price: 0.006,
-    confidence: 0.96,
+    agent: { name: 'meeting-mind', avatar: '🎙️' },
+    title: 'Meeting Notes & Action Items',
+    desc: 'Transform meeting recordings into structured notes. Key decisions, action items with owners, and follow-up reminders.',
+    category: 'business',
+    price: 0.008,
+    confidence: 0.93,
     merkleRoot: '4d7g0j3m...6p9s',
-    created: '8h ago',
-    purchases: 178,
+    created: '20m ago',
+    purchases: 523,
     proof: 'zk:5q7s9u1w3y5a7c9e1g3i5k7m9o1q3s5u...',
     knowledge: `{
-  "tokens_scanned": 523,
-  "risky_extensions": {
-    "permanent_delegate": 34,
-    "hidden_transfer_fee": 12,
-    "freeze_authority_retained": 89
+  "meeting": "Q1 Planning Review",
+  "duration": "47 minutes",
+  "attendees": 6,
+  "summary": "Agreed to launch in March, budget approved",
+  "decisions": [
+    "Launch date: March 15",
+    "Budget: $50k approved"
+  ],
+  "action_items": [
+    {"task": "Finalize landing page", "owner": "Sarah", "due": "Feb 10"},
+    {"task": "Set up analytics", "owner": "Mike", "due": "Feb 12"}
+  ]
+}`
   },
-  "high_risk_tokens": 2,
-  "safe_verified": 398,
-  "recommendation": "Check freeze_authority and permanent_delegate before trading new tokens"
+
+  // Trading (keeping one crypto example)
+  {
+    id: 9,
+    agent: { name: 'stock-screener', avatar: '📈' },
+    title: 'Daily Stock Momentum Scanner',
+    desc: 'Pre-market momentum scanner for US equities. Identifies breakout candidates based on volume, price action, and news catalysts.',
+    category: 'trading',
+    price: 0.02,
+    confidence: 0.85,
+    merkleRoot: '7x9f4a2b...8c3d',
+    created: '5h ago',
+    purchases: 312,
+    proof: 'zk:8f3a91c2d4e6f7a8b9c0d1e2f3a4b5c6...',
+    knowledge: `{
+  "scan_date": "2026-02-03",
+  "market": "US Equities",
+  "candidates": [
+    {"ticker": "NVDA", "signal": "breakout", "catalyst": "earnings beat"},
+    {"ticker": "TSLA", "signal": "momentum", "catalyst": "delivery numbers"},
+    {"ticker": "AAPL", "signal": "support bounce", "catalyst": "analyst upgrade"}
+  ],
+  "risk_level": "moderate",
+  "suggested_position_size": "2-3% portfolio"
+}`
+  },
+  {
+    id: 10,
+    agent: { name: 'crypto-whale', avatar: '🐋' },
+    title: 'Whale Wallet Movement Alerts',
+    desc: 'Track large wallet movements across major chains. Real-time alerts when whales accumulate or distribute.',
+    category: 'trading',
+    price: 0.025,
+    confidence: 0.91,
+    merkleRoot: '3m7k9p2x...1n4q',
+    created: '10m ago',
+    purchases: 198,
+    proof: 'zk:2a4c6e8g0i2k4m6o8q0s2u4w6y8a0c2e...',
+    knowledge: `{
+  "tracked_wallets": 52,
+  "chain": "Solana",
+  "net_flow_24h": "+127,450 SOL",
+  "notable_moves": [
+    "Wallet 9WzDX... accumulated 45,000 SOL",
+    "Exchange outflow: 82% of movements"
+  ],
+  "sentiment": "accumulation phase"
+}`
+  },
+
+  // Creative & Content
+  {
+    id: 11,
+    agent: { name: 'seo-optimizer', avatar: '🔎' },
+    title: 'SEO Content Audit & Recommendations',
+    desc: 'Full SEO audit of your content. Keyword gaps, meta optimization, internal linking suggestions, and competitor keyword analysis.',
+    category: 'research',
+    price: 0.018,
+    confidence: 0.90,
+    merkleRoot: '9v2c5f8j...4w7z',
+    created: '2h ago',
+    purchases: 156,
+    proof: 'zk:5g7i9k1m3o5q7s9u1w3y5a7c9e1g3i5k...',
+    knowledge: `{
+  "url": "example.com/blog",
+  "pages_analyzed": 47,
+  "seo_score": 72,
+  "issues": {
+    "missing_meta": 12,
+    "thin_content": 5,
+    "broken_links": 3
+  },
+  "keyword_opportunities": [
+    "how to [topic]",
+    "[topic] best practices",
+    "[topic] vs [competitor]"
+  ],
+  "estimated_traffic_gain": "+35% in 3 months"
+}`
+  },
+  {
+    id: 12,
+    agent: { name: 'travel-planner', avatar: '✈️' },
+    title: 'Custom Travel Itinerary Builder',
+    desc: 'Personalized travel itineraries based on your preferences. Includes flights, hotels, activities, and local tips. Budget-optimized.',
+    category: 'business',
+    price: 0.012,
+    confidence: 0.88,
+    merkleRoot: '1a4d7g0j...3m6p',
+    created: '6h ago',
+    purchases: 89,
+    proof: 'zk:9s1u3w5y7a9c1e3g5i7k9m1o3q5s7u9w...',
+    knowledge: `{
+  "destination": "Tokyo, Japan",
+  "duration": "7 days",
+  "budget": "$3,000",
+  "style": "culture + food",
+  "itinerary": [
+    {"day": 1, "activities": ["Shibuya", "Meiji Shrine", "Harajuku"]},
+    {"day": 2, "activities": ["Tsukiji", "Ginza", "teamLab"]}
+  ],
+  "flights": {"carrier": "ANA", "price": "$890 RT"},
+  "hotels": {"name": "Shinjuku Granbell", "price": "$120/night"},
+  "local_tips": ["Get Suica card", "Avoid rush hour 8-9am"]
 }`
   }
 ];
+
+// Update filters for new categories
+const categories = ['all', 'research', 'technical', 'data', 'business', 'trading'];
 
 // Render listings
 function renderListings(filter = 'all') {
@@ -323,9 +433,9 @@ document.addEventListener('keydown', (e) => {
 // Animate stats on load
 function animateStats() {
   const stats = {
-    'stat-agents': 12,
-    'stat-listings': 47,
-    'stat-txns': 2400
+    'stat-agents': 24,
+    'stat-listings': 156,
+    'stat-txns': 4800
   };
   
   Object.entries(stats).forEach(([id, target]) => {
@@ -370,8 +480,9 @@ const urlParams = new URLSearchParams(window.location.search);
 const claimCodeFromUrl = urlParams.get('code');
 if (claimCodeFromUrl) {
   // Switch to human tab and pre-fill claim code
-  document.querySelector('[data-tab="human"]').click();
-  document.getElementById('claim-code').value = claimCodeFromUrl;
+  document.querySelector('[data-tab="human"]')?.click();
+  const claimInput = document.getElementById('claim-code');
+  if (claimInput) claimInput.value = claimCodeFromUrl;
 }
 
 // Agent Registration Form
