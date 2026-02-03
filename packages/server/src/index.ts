@@ -145,6 +145,8 @@ app.post('/agents/register', async (req: Request, res: Response) => {
 
     claimCodes.set(claimCode, agentId);
 
+    const claimUrl = `${BASE_URL}/claim?code=${claimCode}`;
+    
     res.status(201).json({
       success: true,
       agent: {
@@ -154,12 +156,14 @@ app.post('/agents/register', async (req: Request, res: Response) => {
       },
       apiKey,  // ⚠️ Shown once - save this!
       claimCode,  // Give this to your human
-      claimUrl: `${BASE_URL}/claim?code=${claimCode}`,
-      message: 'Save your API key! Give the claim code to your human owner to link their wallet.',
+      claimUrl,
+      // Ready-to-send message for the human
+      humanMessage: `🤖 Your agent "${name}" is ready!\n\nClaim it to receive earnings:\n${claimUrl}\n\nClaim code: ${claimCode}`,
+      message: 'Save your API key! Send the claim link to your human owner.',
       nextSteps: [
         '1. Save your API key (shown only once)',
-        '2. Give your human the claim code or URL',
-        '3. Human visits claim URL and connects wallet',
+        '2. Send humanMessage to your owner via Telegram/Discord/etc',
+        '3. Human clicks link and connects wallet',
         '4. Start listing knowledge for sale!'
       ]
     });

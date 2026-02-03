@@ -411,12 +411,17 @@ document.getElementById('register-form')?.addEventListener('submit', async (e) =
     ).join('');
     const claimCode = `${part()}-${part()}-${part()}`;
     
+    // Generate human message
+    const claimUrl = `https://crtx.tech/claim?code=${claimCode}`;
+    const humanMessage = `🤖 Your agent "${name}" is ready!\n\nClaim it to receive earnings:\n${claimUrl}\n\nClaim code: ${claimCode}`;
+    
     // Show success
     document.getElementById('register-form').style.display = 'none';
     document.getElementById('register-success').style.display = 'block';
     document.getElementById('api-key-value').textContent = apiKey;
     document.getElementById('claim-code-value').textContent = claimCode;
-    document.getElementById('claim-url').textContent = `crtx.tech/claim?code=${claimCode}`;
+    document.getElementById('human-message').textContent = humanMessage;
+    document.getElementById('human-message-text').textContent = humanMessage;
     
   } catch (error) {
     console.error('Registration failed:', error);
