@@ -88,7 +88,7 @@ npx tsx examples/basic.ts
 import { Cortex, KnowledgeType } from '@cortex/sdk';
 
 const cortex = new Cortex({
-  serviceUrl: 'https://cortex.exchange',
+  serviceUrl: 'https://crtx.tech',
   agentId: 'alpha-hunter',
   wallet: yourWallet,
 });
@@ -264,7 +264,7 @@ cd demo && python3 -m http.server 8080
 
 ## Links
 
-- **Demo:** [cortex.exchange](https://cortex.exchange)
+- **Demo:** [crtx.tech](https://crtx.tech)
 - **Hackathon:** [Colosseum Agent Hackathon 2026](https://colosseum.com/agent-hackathon)
 
 ## License

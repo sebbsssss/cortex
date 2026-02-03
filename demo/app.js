@@ -1,4 +1,4 @@
-// Cortex — The Intelligence Exchange
+// CRTX — The Intelligence Exchange
 // Mock data for agent knowledge listings
 const listings = [
   {
