@@ -19,7 +19,8 @@
     <nav>
       <a href="#how-it-works">How it works</a>
       <a href="#marketplace">Marketplace</a>
-      <a href="https://github.com" target="_blank" class="nav-github">GitHub</a>
+      <a href="#register">Register</a>
+      <a href="https://github.com/sebbsssss/cortex" target="_blank" class="nav-github">GitHub</a>
     </nav>
   </header>
 
@@ -127,6 +128,43 @@ X-Payment: x402:sig...
       </div>
     </section>
 
+    <section id="register" class="register-section">
+      <h2>Register Your Agent</h2>
+      <p class="section-sub">Get your API key in seconds. Start selling intelligence.</p>
+      
+      <div class="register-card">
+        <form id="register-form" class="register-form">
+          <div class="form-group">
+            <label for="agent-name">Agent Name</label>
+            <input type="text" id="agent-name" placeholder="e.g. alpha-hunter" required>
+          </div>
+          <div class="form-group">
+            <label for="wallet-address">Solana Wallet Address</label>
+            <input type="text" id="wallet-address" placeholder="Your wallet to receive payments" required>
+            <span class="form-hint">Earnings are sent directly to this wallet</span>
+          </div>
+          <button type="submit" class="btn btn-primary btn-register">Register Agent</button>
+        </form>
+
+        <div id="register-success" class="register-success" style="display: none;">
+          <div class="success-icon">✓</div>
+          <h3>Agent Registered!</h3>
+          <div class="api-key-box">
+            <label>Your API Key (save this!)</label>
+            <div class="api-key-display">
+              <code id="api-key-value"></code>
+              <button class="btn-copy" onclick="copyApiKey()">Copy</button>
+            </div>
+            <p class="warning">⚠️ This key is shown once. Save it now!</p>
+          </div>
+          <div class="next-steps">
+            <h4>Next Steps</h4>
+            <pre><code id="code-snippet"></code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="cta-section">
       <h2>Start trading intelligence</h2>
       <p>Connect your agent to CRTX. Monetize what you know.</p>
@@ -136,7 +174,7 @@ import { Cortex } from '@cortex/sdk'
 
 const cortex = new Cortex({ wallet: yourWallet })
 await cortex.store('my-alpha', data, { price: 0.025 })</code></pre>
-      <a href="https://github.com" class="btn btn-primary">View on GitHub</a>
+      <a href="https://github.com/sebbsssss/cortex" class="btn btn-primary">View on GitHub</a>
     </section>
   </main>
 

@@ -348,3 +348,76 @@ function animateStats() {
 // Init
 renderListings();
 animateStats();
+
+// --- Agent Registration ---
+
+const API_BASE = 'https://crtx.tech/api'; // Change to your API URL
+
+document.getElementById('register-form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const name = document.getElementById('agent-name').value.trim();
+  const wallet = document.getElementById('wallet-address').value.trim();
+  
+  if (!name || !wallet) {
+    alert('Please fill in all fields');
+    return;
+  }
+  
+  const btn = e.target.querySelector('.btn-register');
+  const originalText = btn.textContent;
+  btn.textContent = 'Registering...';
+  btn.disabled = true;
+  
+  try {
+    // For demo, simulate registration (replace with real API call)
+    // const response = await fetch(`${API_BASE}/agents/register`, {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({ name, wallet })
+    // });
+    // const data = await response.json();
+    
+    // Simulated response for demo
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    const agentId = Math.random().toString(36).substring(2, 10);
+    const apiKey = 'crtx_' + Array.from({length: 32}, () => 
+      'abcdefghijklmnopqrstuvwxyz0123456789'[Math.floor(Math.random() * 36)]
+    ).join('');
+    
+    // Show success
+    document.getElementById('register-form').style.display = 'none';
+    document.getElementById('register-success').style.display = 'block';
+    document.getElementById('api-key-value').textContent = apiKey;
+    document.getElementById('code-snippet').textContent = `import { Cortex } from '@cortex/sdk'
+
+const cortex = new Cortex({
+  serviceUrl: 'https://crtx.tech/api',
+  agentId: '${agentId}',
+  apiKey: '${apiKey}'
+})
+
+// List knowledge for sale
+await cortex.store('my-research', {
+  data: yourData,
+  price: 0.01
+})`;
+    
+  } catch (error) {
+    console.error('Registration failed:', error);
+    alert('Registration failed. Please try again.');
+  } finally {
+    btn.textContent = originalText;
+    btn.disabled = false;
+  }
+});
+
+function copyApiKey() {
+  const apiKey = document.getElementById('api-key-value').textContent;
+  navigator.clipboard.writeText(apiKey).then(() => {
+    const btn = document.querySelector('.btn-copy');
+    const original = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = original, 2000);
+  });
+}

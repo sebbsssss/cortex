@@ -838,3 +838,177 @@ footer a:hover {
 .listing:nth-child(4) { animation-delay: 0.15s; }
 .listing:nth-child(5) { animation-delay: 0.2s; }
 .listing:nth-child(6) { animation-delay: 0.25s; }
+
+/* Registration Section */
+.register-section {
+  padding: 5rem 2rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.register-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.form-group input {
+  padding: 0.875rem 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 1rem;
+  font-family: var(--font-mono);
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.form-group input::placeholder {
+  color: var(--text-dim);
+}
+
+.form-hint {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.btn-register {
+  margin-top: 0.5rem;
+  padding: 1rem;
+  font-size: 1rem;
+}
+
+/* Registration Success */
+.register-success {
+  text-align: center;
+}
+
+.register-success .success-icon {
+  width: 64px;
+  height: 64px;
+  background: rgba(74, 222, 128, 0.1);
+  border: 2px solid var(--success);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: var(--success);
+  margin: 0 auto 1.5rem;
+}
+
+.register-success h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.api-key-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.api-key-box label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.api-key-display {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.api-key-display code {
+  flex: 1;
+  padding: 0.75rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-copy {
+  padding: 0.75rem 1rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-copy:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.warning {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: var(--warning);
+}
+
+.next-steps {
+  text-align: left;
+}
+
+.next-steps h4 {
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+  color: var(--text-muted);
+}
+
+.next-steps pre {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+.next-steps code {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}

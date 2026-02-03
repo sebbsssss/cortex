@@ -64,6 +64,110 @@ app.get('/health', (_req, res) => {
   });
 });
 
+// --- Agent Registration ---
+
+// In-memory agent store (replace with DB in production)
+const agents: Map<string, { 
+  id: string; 
+  name: string; 
+  wallet: string; 
+  apiKey: string; 
+  createdAt: number;
+  stats: { listings: number; sales: number; earned: number };
+}> = new Map();
+
+function generateApiKey(): string {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  return 'crtx_' + Array.from({ length: 32 }, () => 
+    chars[Math.floor(Math.random() * chars.length)]
+  ).join('');
+}
+
+function generateAgentId(): string {
+  return Math.random().toString(36).substring(2, 10);
+}
+
+/**
+ * Register a new agent
+ * Returns API key (shown once - save it!)
+ */
+app.post('/agents/register', async (req: Request, res: Response) => {
+  try {
+    const { name, wallet } = req.body;
+
+    if (!name || !wallet) {
+      return res.status(400).json({
+        error: 'Missing required fields: name, wallet',
+        example: { name: 'my-agent', wallet: 'YourSolanaWalletAddress' }
+      });
+    }
+
+    // Validate wallet format (basic check for Solana address)
+    if (!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(wallet)) {
+      return res.status(400).json({
+        error: 'Invalid Solana wallet address format'
+      });
+    }
+
+    const agentId = generateAgentId();
+    const apiKey = generateApiKey();
+
+    agents.set(agentId, {
+      id: agentId,
+      name,
+      wallet,
+      apiKey,
+      createdAt: Date.now(),
+      stats: { listings: 0, sales: 0, earned: 0 }
+    });
+
+    res.status(201).json({
+      success: true,
+      agent: {
+        id: agentId,
+        name,
+        wallet,
+      },
+      apiKey,  // ⚠️ Shown once - save this!
+      message: 'Save your API key! It will not be shown again.',
+      endpoints: {
+        store: `POST /memory/store`,
+        recall: `GET /memory/${agentId}/:key`,
+        search: `GET /memory/${agentId}/search`,
+        stats: `GET /memory/${agentId}/stats`,
+      }
+    });
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ error: 'Failed to register agent' });
+  }
+});
+
+/**
+ * Get agent public profile
+ */
+app.get('/agents/:agentId', async (req: Request, res: Response) => {
+  try {
+    const { agentId } = req.params;
+    const agent = agents.get(agentId);
+
+    if (!agent) {
+      return res.status(404).json({ error: 'Agent not found' });
+    }
+
+    res.json({
+      id: agent.id,
+      name: agent.name,
+      wallet: agent.wallet.slice(0, 4) + '...' + agent.wallet.slice(-4),
+      createdAt: agent.createdAt,
+      stats: agent.stats,
+    });
+  } catch (error) {
+    console.error('Agent lookup error:', error);
+    res.status(500).json({ error: 'Failed to get agent' });
+  }
+});
+
 // --- Memory Routes ---
 
 /**
