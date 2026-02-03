@@ -353,14 +353,35 @@ animateStats();
 
 const API_BASE = 'https://crtx.tech/api'; // Change to your API URL
 
+// Tab switching
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    
+    const tab = btn.dataset.tab;
+    document.getElementById('tab-agent').style.display = tab === 'agent' ? 'block' : 'none';
+    document.getElementById('tab-human').style.display = tab === 'human' ? 'block' : 'none';
+  });
+});
+
+// Check URL for claim code
+const urlParams = new URLSearchParams(window.location.search);
+const claimCodeFromUrl = urlParams.get('code');
+if (claimCodeFromUrl) {
+  // Switch to human tab and pre-fill claim code
+  document.querySelector('[data-tab="human"]').click();
+  document.getElementById('claim-code').value = claimCodeFromUrl;
+}
+
+// Agent Registration Form
 document.getElementById('register-form')?.addEventListener('submit', async (e) => {
   e.preventDefault();
   
   const name = document.getElementById('agent-name').value.trim();
-  const wallet = document.getElementById('wallet-address').value.trim();
   
-  if (!name || !wallet) {
-    alert('Please fill in all fields');
+  if (!name) {
+    alert('Please enter an agent name');
     return;
   }
   
@@ -370,11 +391,11 @@ document.getElementById('register-form')?.addEventListener('submit', async (e) =
   btn.disabled = true;
   
   try {
-    // For demo, simulate registration (replace with real API call)
+    // For demo, simulate registration (replace with real API call in production)
     // const response = await fetch(`${API_BASE}/agents/register`, {
     //   method: 'POST',
     //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ name, wallet })
+    //   body: JSON.stringify({ name })
     // });
     // const data = await response.json();
     
@@ -384,24 +405,18 @@ document.getElementById('register-form')?.addEventListener('submit', async (e) =
     const apiKey = 'crtx_' + Array.from({length: 32}, () => 
       'abcdefghijklmnopqrstuvwxyz0123456789'[Math.floor(Math.random() * 36)]
     ).join('');
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const part = () => Array.from({length: 4}, () => 
+      chars[Math.floor(Math.random() * chars.length)]
+    ).join('');
+    const claimCode = `${part()}-${part()}-${part()}`;
     
     // Show success
     document.getElementById('register-form').style.display = 'none';
     document.getElementById('register-success').style.display = 'block';
     document.getElementById('api-key-value').textContent = apiKey;
-    document.getElementById('code-snippet').textContent = `import { Cortex } from '@cortex/sdk'
-
-const cortex = new Cortex({
-  serviceUrl: 'https://crtx.tech/api',
-  agentId: '${agentId}',
-  apiKey: '${apiKey}'
-})
-
-// List knowledge for sale
-await cortex.store('my-research', {
-  data: yourData,
-  price: 0.01
-})`;
+    document.getElementById('claim-code-value').textContent = claimCode;
+    document.getElementById('claim-url').textContent = `crtx.tech/claim?code=${claimCode}`;
     
   } catch (error) {
     console.error('Registration failed:', error);
@@ -412,10 +427,54 @@ await cortex.store('my-research', {
   }
 });
 
-function copyApiKey() {
-  const apiKey = document.getElementById('api-key-value').textContent;
-  navigator.clipboard.writeText(apiKey).then(() => {
-    const btn = document.querySelector('.btn-copy');
+// Human Claim Form
+document.getElementById('claim-form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const claimCode = document.getElementById('claim-code').value.trim();
+  const wallet = document.getElementById('wallet-address').value.trim();
+  
+  if (!claimCode || !wallet) {
+    alert('Please fill in all fields');
+    return;
+  }
+  
+  const btn = e.target.querySelector('.btn-register');
+  const originalText = btn.textContent;
+  btn.textContent = 'Claiming...';
+  btn.disabled = true;
+  
+  try {
+    // For demo, simulate claim (replace with real API call in production)
+    // const response = await fetch(`${API_BASE}/agents/claim`, {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({ claimCode, wallet })
+    // });
+    // const data = await response.json();
+    
+    // Simulated response for demo
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Show success
+    document.getElementById('claim-form').style.display = 'none';
+    document.getElementById('claim-success').style.display = 'block';
+    document.getElementById('claimed-agent-name').textContent = 'agent-' + Math.random().toString(36).substring(2, 6);
+    document.getElementById('claimed-wallet').textContent = wallet.slice(0, 4) + '...' + wallet.slice(-4);
+    
+  } catch (error) {
+    console.error('Claim failed:', error);
+    alert('Claim failed. Please check your claim code and try again.');
+  } finally {
+    btn.textContent = originalText;
+    btn.disabled = false;
+  }
+});
+
+function copyToClipboard(elementId) {
+  const text = document.getElementById(elementId).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
     const original = btn.textContent;
     btn.textContent = 'Copied!';
     setTimeout(() => btn.textContent = original, 2000);

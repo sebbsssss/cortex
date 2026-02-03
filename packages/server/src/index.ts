@@ -66,15 +66,21 @@ app.get('/health', (_req, res) => {
 
 // --- Agent Registration ---
 
-// In-memory agent store (replace with DB in production)
-const agents: Map<string, { 
-  id: string; 
-  name: string; 
-  wallet: string; 
-  apiKey: string; 
+// In-memory stores (replace with DB in production)
+interface Agent {
+  id: string;
+  name: string;
+  wallet: string | null;  // null until human claims
+  apiKey: string;
+  claimCode: string;
+  claimed: boolean;
   createdAt: number;
+  claimedAt: number | null;
   stats: { listings: number; sales: number; earned: number };
-}> = new Map();
+}
+
+const agents: Map<string, Agent> = new Map();
+const claimCodes: Map<string, string> = new Map();  // claimCode -> agentId
 
 function generateApiKey(): string {
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
@@ -87,59 +93,184 @@ function generateAgentId(): string {
   return Math.random().toString(36).substring(2, 10);
 }
 
+function generateClaimCode(): string {
+  // Format: xxxx-xxxx-xxxx (human-readable)
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // No confusing chars
+  const part = () => Array.from({ length: 4 }, () => 
+    chars[Math.floor(Math.random() * chars.length)]
+  ).join('');
+  return `${part()}-${part()}-${part()}`;
+}
+
+const BASE_URL = process.env.BASE_URL || 'https://crtx.tech';
+
 /**
  * Register a new agent
- * Returns API key (shown once - save it!)
+ * Step 1: Agent calls this with just a name
+ * Returns: API key + claim code for human owner
  */
 app.post('/agents/register', async (req: Request, res: Response) => {
   try {
-    const { name, wallet } = req.body;
+    const { name } = req.body;
 
-    if (!name || !wallet) {
+    if (!name) {
       return res.status(400).json({
-        error: 'Missing required fields: name, wallet',
-        example: { name: 'my-agent', wallet: 'YourSolanaWalletAddress' }
+        error: 'Missing required field: name',
+        example: { name: 'my-agent' }
       });
     }
 
-    // Validate wallet format (basic check for Solana address)
-    if (!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(wallet)) {
+    // Validate name format
+    if (!/^[a-zA-Z0-9_-]{2,32}$/.test(name)) {
       return res.status(400).json({
-        error: 'Invalid Solana wallet address format'
+        error: 'Invalid name. Use 2-32 alphanumeric characters, dashes, or underscores.'
       });
     }
 
     const agentId = generateAgentId();
     const apiKey = generateApiKey();
+    const claimCode = generateClaimCode();
 
     agents.set(agentId, {
       id: agentId,
       name,
-      wallet,
+      wallet: null,
       apiKey,
+      claimCode,
+      claimed: false,
       createdAt: Date.now(),
+      claimedAt: null,
       stats: { listings: 0, sales: 0, earned: 0 }
     });
+
+    claimCodes.set(claimCode, agentId);
 
     res.status(201).json({
       success: true,
       agent: {
         id: agentId,
         name,
-        wallet,
+        status: 'pending_claim',
       },
       apiKey,  // ⚠️ Shown once - save this!
-      message: 'Save your API key! It will not be shown again.',
-      endpoints: {
-        store: `POST /memory/store`,
-        recall: `GET /memory/${agentId}/:key`,
-        search: `GET /memory/${agentId}/search`,
-        stats: `GET /memory/${agentId}/stats`,
-      }
+      claimCode,  // Give this to your human
+      claimUrl: `${BASE_URL}/claim?code=${claimCode}`,
+      message: 'Save your API key! Give the claim code to your human owner to link their wallet.',
+      nextSteps: [
+        '1. Save your API key (shown only once)',
+        '2. Give your human the claim code or URL',
+        '3. Human visits claim URL and connects wallet',
+        '4. Start listing knowledge for sale!'
+      ]
     });
   } catch (error) {
     console.error('Registration error:', error);
     res.status(500).json({ error: 'Failed to register agent' });
+  }
+});
+
+/**
+ * Check claim code status
+ * Human can verify the claim code before claiming
+ */
+app.get('/agents/claim/:claimCode', async (req: Request, res: Response) => {
+  try {
+    const { claimCode } = req.params;
+    const agentId = claimCodes.get(claimCode);
+
+    if (!agentId) {
+      return res.status(404).json({ error: 'Invalid claim code' });
+    }
+
+    const agent = agents.get(agentId);
+    if (!agent) {
+      return res.status(404).json({ error: 'Agent not found' });
+    }
+
+    if (agent.claimed) {
+      return res.status(400).json({ 
+        error: 'Already claimed',
+        wallet: agent.wallet?.slice(0, 4) + '...' + agent.wallet?.slice(-4),
+        claimedAt: agent.claimedAt
+      });
+    }
+
+    res.json({
+      valid: true,
+      agent: {
+        id: agent.id,
+        name: agent.name,
+        createdAt: agent.createdAt,
+      },
+      message: 'Claim code valid. Submit your wallet address to claim this agent.'
+    });
+  } catch (error) {
+    console.error('Claim check error:', error);
+    res.status(500).json({ error: 'Failed to check claim code' });
+  }
+});
+
+/**
+ * Claim an agent
+ * Human submits their wallet to receive payments
+ */
+app.post('/agents/claim', async (req: Request, res: Response) => {
+  try {
+    const { claimCode, wallet } = req.body;
+
+    if (!claimCode || !wallet) {
+      return res.status(400).json({
+        error: 'Missing required fields: claimCode, wallet',
+        example: { claimCode: 'XXXX-XXXX-XXXX', wallet: 'YourSolanaWalletAddress' }
+      });
+    }
+
+    // Validate wallet format
+    if (!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(wallet)) {
+      return res.status(400).json({
+        error: 'Invalid Solana wallet address format'
+      });
+    }
+
+    const agentId = claimCodes.get(claimCode);
+    if (!agentId) {
+      return res.status(404).json({ error: 'Invalid claim code' });
+    }
+
+    const agent = agents.get(agentId);
+    if (!agent) {
+      return res.status(404).json({ error: 'Agent not found' });
+    }
+
+    if (agent.claimed) {
+      return res.status(400).json({ 
+        error: 'Already claimed',
+        wallet: agent.wallet?.slice(0, 4) + '...' + agent.wallet?.slice(-4)
+      });
+    }
+
+    // Claim the agent
+    agent.wallet = wallet;
+    agent.claimed = true;
+    agent.claimedAt = Date.now();
+
+    res.json({
+      success: true,
+      message: 'Agent claimed successfully! Earnings will be sent to your wallet.',
+      agent: {
+        id: agent.id,
+        name: agent.name,
+        wallet: wallet.slice(0, 4) + '...' + wallet.slice(-4),
+      },
+      nextSteps: [
+        'Your agent can now list knowledge for sale',
+        'Earnings from sales will be sent to your wallet',
+        `View agent stats: GET /agents/${agent.id}`
+      ]
+    });
+  } catch (error) {
+    console.error('Claim error:', error);
+    res.status(500).json({ error: 'Failed to claim agent' });
   }
 });
 
@@ -158,8 +289,10 @@ app.get('/agents/:agentId', async (req: Request, res: Response) => {
     res.json({
       id: agent.id,
       name: agent.name,
-      wallet: agent.wallet.slice(0, 4) + '...' + agent.wallet.slice(-4),
+      status: agent.claimed ? 'active' : 'pending_claim',
+      wallet: agent.wallet ? agent.wallet.slice(0, 4) + '...' + agent.wallet.slice(-4) : null,
       createdAt: agent.createdAt,
+      claimedAt: agent.claimedAt,
       stats: agent.stats,
     });
   } catch (error) {
