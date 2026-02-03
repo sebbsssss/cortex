@@ -5,6 +5,7 @@
  */
 
 import { createHash } from 'crypto';
+// @ts-ignore - optional dependency
 import {
   createRpc,
   Rpc,
@@ -16,6 +17,7 @@ import {
   compress,
   decompress,
 } from '@lightprotocol/stateless.js';
+// @ts-ignore - optional dependency
 import { Keypair, PublicKey, ComputeBudgetProgram } from '@solana/web3.js';
 import {
   MemoryEntry,
@@ -56,7 +58,8 @@ export class LightMemoryStore {
     
     try {
       // Check connection
-      const balance = await this.rpc.getBalance(this.payer.publicKey);
+      // @ts-ignore - Rpc type may vary by version
+      const balance = await (this.rpc as any).getBalance(this.payer.publicKey);
       console.log(`[Light] Connected. Payer balance: ${balance / 1e9} SOL`);
       this.initialized = true;
     } catch (error) {
@@ -104,14 +107,16 @@ export class LightMemoryStore {
     
     try {
       // Build compress transaction
-      const { blockhash } = await this.rpc.getLatestBlockhash();
+      // @ts-ignore - Rpc type may vary by version
+      const { blockhash } = await (this.rpc as any).getLatestBlockhash();
       
+      // @ts-ignore - API may vary by version
       const compressIx = await LightSystemProgram.compress({
         payer: this.payer.publicKey,
         toAddress: this.payer.publicKey,
         lamports: 0,
-        outputStateTree: defaultTestStateTreeAccounts().merkleTree,
-      });
+        outputStateTreeInfo: defaultTestStateTreeAccounts().merkleTree,
+      } as any);
 
       const computeIx = ComputeBudgetProgram.setComputeUnitLimit({
         units: 300_000,

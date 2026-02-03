@@ -1,0 +1,7 @@
+# Ignore server-side code for static demo deployment
+packages/
+examples/
+node_modules/
+*.md
+*.json
+!vercel.json

@@ -1,6 +1,7 @@
 {
-  "buildCommand": null,
-  "installCommand": null,
+  "version": 2,
+  "buildCommand": "",
+  "installCommand": "",
   "framework": null,
-  "outputDirectory": "."
+  "public": true
 }

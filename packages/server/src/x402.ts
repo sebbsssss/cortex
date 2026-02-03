@@ -49,7 +49,7 @@ export async function verifyPayment(
       return { valid: false, error: `Facilitator error: ${error}` };
     }
 
-    const result = await response.json();
+    const result = await response.json() as { valid?: boolean; error?: string };
     return { valid: result.valid === true, error: result.error };
   } catch (error) {
     console.error('[x402] Verification failed:', error);
@@ -83,7 +83,7 @@ export async function settlePayment(
       return { settled: false, error: `Settlement error: ${error}` };
     }
 
-    const result = await response.json();
+    const result = await response.json() as { settled?: boolean; transactionHash?: string; error?: string };
     return { 
       settled: result.settled === true, 
       txHash: result.transactionHash,
