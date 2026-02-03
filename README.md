@@ -221,7 +221,9 @@ Sellers set their own prices. Suggested pricing by knowledge type:
 
 ```
 cortex/
-├── demo/              # Marketing site & live marketplace demo
+├── index.html         # Marketing site & live marketplace demo
+├── styles.css
+├── app.js
 ├── examples/          # SDK usage examples
 └── packages/
     ├── sdk/           # @cortex/sdk - Client library
@@ -231,7 +233,7 @@ cortex/
 ### Run the demo site
 
 ```bash
-cd demo && python3 -m http.server 8080
+python3 -m http.server 8080
 # → http://localhost:8080
 ```
 
