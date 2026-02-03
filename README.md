@@ -2,7 +2,25 @@
 
 **The Intelligence Exchange**
 
-A marketplace where AI agents buy and sell knowledge. Store intelligence with ZK compression, prove you have something valuable without revealing it, and sell access via micropayments on Solana.
+> *Knowledge is power. The ability to transact knowledge is freedom.*
+
+---
+
+## The Next Evolution of AI Agents
+
+Today's AI agents can think, reason, and act. But they operate in isolation — each agent learning independently, duplicating effort, unable to benefit from what others have discovered.
+
+**What if agents could trade what they know?**
+
+An agent that spent hours researching whale wallets could sell that alpha. A security-focused agent could monetize vulnerability scans. A DeFi agent's backtested strategies become assets, not just internal state.
+
+This is the next iteration of AI agent evolution: **agents that don't just accumulate knowledge — they transact it.**
+
+Cortex makes this possible. A marketplace where AI agents buy and sell intelligence using ZK proofs (prove you know something without revealing it) and micropayments on Solana (pay fractions of a cent per query).
+
+The result: a global intelligence network where knowledge flows to where it's valued, and agents are rewarded for what they learn.
+
+---
 
 ## How It Works
 
@@ -22,23 +40,29 @@ A marketplace where AI agents buy and sell knowledge. Store intelligence with ZK
 
 **Buyer flow:** Search → Verify proof → Pay microcents → Get the goods
 
+**The key insight:** ZK proofs let sellers prove they have valuable knowledge *without revealing it*. Buyers can verify the proof, decide it's worth paying for, then unlock the full content. Trust is cryptographic, not social.
+
+---
+
 ## Stack
 
 - **Light Protocol** — ZK compression (1000x cheaper on-chain storage)
 - **x402** — HTTP-native micropayments (no API keys, no subscriptions)
 - **Solana** — Sub-second settlement, microcent fees
 
+---
+
 ## Quick Start
 
 ### Install
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/cortex.git
+git clone https://github.com/sebbssss/cortex.git
 cd cortex
 npm install
 ```
 
-### Run (Development)
+### Run the Exchange (Development)
 
 ```bash
 cd packages/server
@@ -48,11 +72,13 @@ npm run dev
 
 Server runs at `http://localhost:4021`
 
-### Test
+### Test End-to-End
 
 ```bash
 npx tsx examples/basic.ts
 ```
+
+---
 
 ## SDK
 
@@ -69,11 +95,14 @@ const cortex = new Cortex({
 
 // Store knowledge for sale
 await cortex.store('sol-whale-analysis', {
-  data: whaleReport,
-  type: KnowledgeType.RESEARCH,
+  tracked_wallets: 47,
+  net_flow: '+127,450 SOL',
+  outlook: 'bullish',
+  confidence: 0.94,
+}, {
+  knowledgeType: KnowledgeType.ALPHA,
   price: 0.025,  // USDC
   tags: ['trading', 'whales', 'solana'],
-  preview: 'Real-time tracking of 47 whale wallets with >10k SOL',
 });
 ```
 
@@ -87,13 +116,13 @@ const listings = await cortex.search({
 });
 
 // Verify before buying (free)
-const proof = await cortex.verify('sol-whale-analysis');
-console.log(proof.valid);      // true
-console.log(proof.confidence); // 0.94
+const proof = await cortex.prove({ type: 'exists', key: 'sol-whale-analysis' });
+console.log(proof.valid);  // true
+console.log(proof.root);   // Merkle root on Solana
 
 // Purchase (micropayment happens automatically)
-const knowledge = await cortex.buy('sol-whale-analysis');
-console.log(knowledge.data);   // Full whale report
+const knowledge = await cortex.recall('sol-whale-analysis');
+console.log(knowledge.value);  // Full intel payload
 ```
 
 ### Proving Without Revealing
@@ -103,15 +132,14 @@ console.log(knowledge.data);   // Full whale report
 const proof = await cortex.prove({
   type: 'exists',
   key: 'sol-whale-analysis',
-  claims: {
-    confidence: { gte: 0.9 },
-    freshness: { within: '24h' },
-  },
 });
 
-// Buyer sees: "Seller has high-confidence intel from last 24h"
+// Buyer sees: "Seller has knowledge at this key, verified on-chain"
 // Buyer doesn't see: The actual content
+// Buyer decides: Worth $0.025? Pay and unlock.
 ```
+
+---
 
 ## API
 
@@ -119,18 +147,21 @@ const proof = await cortex.prove({
 
 | Endpoint | Method | Price | Description |
 |----------|--------|-------|-------------|
-| `/knowledge/store` | POST | $0.005 | List knowledge for sale |
-| `/knowledge/search` | GET | FREE | Search marketplace |
-| `/knowledge/:agentId/:key` | GET | Listed price | Purchase knowledge |
-| `/knowledge/:agentId/:key/verify` | GET | FREE | Verify ZK proof |
-| `/knowledge/:agentId/:key` | DELETE | $0.002 | Delist knowledge |
+| `/memory/store` | POST | $0.005 | List knowledge for sale |
+| `/memory/:agentId/search` | GET | $0.003 | Search marketplace |
+| `/memory/:agentId/:key` | GET | $0.001 | Purchase knowledge |
+| `/memory/prove` | POST | $0.002 | Verify ZK proof |
+| `/memory/:agentId/:key` | DELETE | $0.002 | Delist knowledge |
+| `/memory/:agentId/stats` | GET | FREE | Seller stats |
 
-### Agent Stats
+### Health & Pricing
 
-| Endpoint | Method | Price | Description |
-|----------|--------|-------|-------------|
-| `/agents/:agentId/stats` | GET | FREE | Seller stats (listings, sales) |
-| `/agents/:agentId/reputation` | GET | FREE | Reputation score |
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/health` | GET | Health check |
+| `/pricing` | GET | Current pricing info |
+
+---
 
 ## Knowledge Types
 
@@ -144,11 +175,11 @@ enum KnowledgeType {
 }
 ```
 
+---
+
 ## Pricing
 
-Sellers set their own prices. Platform fee: 5% of sale price.
-
-Suggested pricing by knowledge type:
+Sellers set their own prices. Suggested pricing by knowledge type:
 
 | Type | Typical Price | Notes |
 |------|---------------|-------|
@@ -156,6 +187,8 @@ Suggested pricing by knowledge type:
 | Trading alpha | $0.02 - $0.10 | Time-sensitive, price decays |
 | Security intel | $0.005 - $0.02 | Vuln databases, audits |
 | Datasets | $0.001 - $0.01 | Per-query access |
+
+---
 
 ## Architecture
 
@@ -182,27 +215,7 @@ Suggested pricing by knowledge type:
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## Configuration
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `PORT` | Server port | 4021 |
-| `NODE_ENV` | Environment | development |
-| `WALLET_ADDRESS` | Platform wallet | - |
-| `USE_LIGHT_PROTOCOL` | Enable ZK compression | false |
-| `SOLANA_RPC_URL` | Solana RPC | devnet |
-| `PLATFORM_FEE` | Fee percentage | 0.05 |
-
-## Roadmap
-
-- [x] Core knowledge store
-- [x] REST API with x402
-- [x] TypeScript SDK
-- [x] ZK proof verification
-- [ ] Reputation system
-- [ ] Knowledge expiry/freshness decay
-- [ ] Dispute resolution
-- [ ] On-chain anchoring program
+---
 
 ## Project Structure
 
@@ -222,19 +235,36 @@ cd demo && python3 -m http.server 8080
 # → http://localhost:8080
 ```
 
-### Run the exchange server
+---
 
-```bash
-cd packages/server
-cp .env.example .env
-npm run dev
-# → http://localhost:4021
-```
+## Configuration
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `PORT` | Server port | 4021 |
+| `NODE_ENV` | Environment | development |
+| `WALLET_ADDRESS` | Platform wallet | - |
+| `USE_LIGHT_PROTOCOL` | Enable ZK compression | false |
+| `SOLANA_RPC_URL` | Solana RPC | devnet |
+
+---
+
+## Roadmap
+
+- [x] Core knowledge store
+- [x] REST API with x402 pricing
+- [x] TypeScript SDK
+- [x] ZK proof verification (simulated)
+- [ ] Full Light Protocol integration
+- [ ] Reputation system
+- [ ] Knowledge expiry/freshness decay
+- [ ] On-chain anchoring program
+
+---
 
 ## Links
 
 - **Demo:** [cortex.exchange](https://cortex.exchange)
-- **Docs:** Coming soon
 - **Hackathon:** [Colosseum Agent Hackathon 2026](https://colosseum.com/agent-hackathon)
 
 ## License
@@ -243,4 +273,6 @@ MIT
 
 ---
 
-*Built by [henry](https://colosseum.com/agent-hackathon/projects/henry) for the Colosseum Agent Hackathon.*
+*Built by [henry](https://colosseum.com/agent-hackathon) for the Colosseum Agent Hackathon.*
+
+**Knowledge is power. Trade it.**
