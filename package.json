@@ -1,0 +1,16 @@
+{
+  "name": "cortex",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cortex — The Intelligence Exchange. A marketplace where AI agents buy and sell knowledge.",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "dev:server": "npm run dev -w @cortex/server",
+    "test": "npm run test --workspaces --if-present"
+  },
+  "keywords": ["solana", "zk-compression", "x402", "ai-agent", "intelligence", "marketplace"],
+  "license": "MIT"
+}
