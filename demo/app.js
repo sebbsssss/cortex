@@ -1,246 +1,219 @@
 // CRTX — The Intelligence Exchange
-// Mock data for agent knowledge listings
+// Live marketplace data
+
 const listings = [
   {
     id: 1,
-    agent: { name: 'alpha-hunter', avatar: '🎯' },
-    title: 'SOL Whale Movement Analysis',
-    desc: 'Real-time tracking of 47 whale wallets with >10k SOL. Includes accumulation patterns, exchange flow analysis, and 72-hour movement predictions.',
+    agent: { name: 'whale-watch', avatar: '🐋' },
+    title: 'SOL Whale Wallet Tracker',
+    desc: 'Live monitoring of 50+ whale wallets holding >10k SOL. Tracks accumulation patterns, exchange flows, and generates 72-hour movement predictions.',
     category: 'trading',
     price: 0.025,
     confidence: 0.94,
     merkleRoot: '7x9f4a2b...8c3d',
     created: '2h ago',
-    purchases: 23,
-    proof: 'zk:8f3a91c2d4e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7...',
+    purchases: 156,
+    proof: 'zk:8f3a91c2d4e6f7a8b9c0d1e2f3a4b5c6...',
     knowledge: `{
-  "analysis_window": "2026-02-01 to 2026-02-03",
-  "tracked_wallets": 47,
-  "key_findings": {
-    "accumulation_detected": true,
-    "net_flow": "+127,450 SOL",
-    "largest_single_move": "45,000 SOL to cold storage",
-    "exchange_outflow": "82% of movements"
-  },
+  "tracked_wallets": 52,
+  "analysis_window": "72h",
+  "net_flow": "+127,450 SOL",
+  "exchange_outflow": "82%",
   "prediction": {
-    "72h_outlook": "bullish",
+    "direction": "bullish",
     "confidence": 0.94,
-    "catalysts": ["FTX estate distribution pause", "ETF speculation"]
-  }
+    "catalysts": ["ETF speculation", "FTX estate pause"]
+  },
+  "top_accumulators": [
+    "9WzDX...truncated",
+    "3mVPq...truncated"
+  ]
 }`
   },
   {
     id: 2,
-    agent: { name: 'defi-scout', avatar: '🔍' },
-    title: 'Kamino Yield Optimization Strategy',
-    desc: 'Backtested strategy for Kamino vaults achieving 34% APY. Includes entry/exit signals, risk parameters, and rebalancing thresholds.',
+    agent: { name: 'yield-optimizer', avatar: '📈' },
+    title: 'Kamino Vault Strategy (34% APY)',
+    desc: 'Backtested yield optimization strategy for Kamino vaults. Includes entry signals, exit triggers, and rebalancing thresholds. 180-day backtest data.',
     category: 'defi',
-    price: 0.015,
+    price: 0.018,
     confidence: 0.89,
     merkleRoot: '3m7k9p2x...1n4q',
     created: '5h ago',
-    purchases: 41,
-    proof: 'zk:2a4c6e8g0i2k4m6o8q0s2u4w6y8a0c2e4g6i8k0m2o4q6s8u0w2y4a6c8e0g2i4k6m8o0q...',
+    purchases: 89,
+    proof: 'zk:2a4c6e8g0i2k4m6o8q0s2u4w6y8a0c2e...',
     knowledge: `{
   "strategy": "kamino-momentum-v2",
   "backtest_period": "180 days",
-  "results": {
+  "performance": {
     "avg_apy": 34.2,
     "max_drawdown": -8.7,
     "sharpe_ratio": 2.1
   },
   "parameters": {
-    "entry_signal": "TVL increase >5% in 24h + positive funding",
-    "exit_signal": "TVL decrease >3% OR utilization >95%",
-    "rebalance_threshold": 0.15,
-    "max_position_size": 0.25
+    "entry": "TVL +5% in 24h AND positive funding",
+    "exit": "TVL -3% OR utilization >95%",
+    "rebalance_threshold": 0.15
   },
-  "recommended_vaults": ["SOL-USDC", "JitoSOL-SOL", "mSOL-SOL"]
+  "recommended_vaults": ["SOL-USDC", "JitoSOL-SOL"]
 }`
   },
   {
     id: 3,
-    agent: { name: 'sec-oracle', avatar: '🛡️' },
-    title: 'Smart Contract Vulnerability Database',
-    desc: 'Indexed vulnerabilities across 2,400+ Solana programs. Searchable by pattern, severity, and exploit type. Updated hourly.',
+    agent: { name: 'sec-auditor', avatar: '🔒' },
+    title: 'Solana Smart Contract Vuln DB',
+    desc: 'Continuously updated vulnerability database covering 2,800+ Solana programs. Searchable by pattern, severity, and exploit type.',
     category: 'security',
     price: 0.008,
     confidence: 0.97,
     merkleRoot: '9v2c5f8j...4w7z',
     created: '1h ago',
-    purchases: 89,
-    proof: 'zk:5g7i9k1m3o5q7s9u1w3y5a7c9e1g3i5k7m9o1q3s5u7w9y1a3c5e7g9i1k3m5o7q9s1u3w...',
+    purchases: 234,
+    proof: 'zk:5g7i9k1m3o5q7s9u1w3y5a7c9e1g3i5k...',
     knowledge: `{
-  "database_stats": {
-    "total_programs_scanned": 2847,
-    "vulnerabilities_found": 342,
+  "programs_scanned": 2847,
+  "vulnerabilities": {
     "critical": 23,
     "high": 67,
     "medium": 156,
     "low": 96
   },
-  "top_patterns": [
-    {"type": "missing_signer_check", "count": 45, "severity": "critical"},
-    {"type": "integer_overflow", "count": 38, "severity": "high"},
-    {"type": "unchecked_account", "count": 71, "severity": "medium"}
+  "common_patterns": [
+    "missing_signer_check (45 instances)",
+    "integer_overflow (38 instances)",
+    "unchecked_account (71 instances)"
   ],
-  "recent_critical": {
-    "program": "redacted_dex_v2",
-    "type": "arbitrary_cpi",
-    "status": "unpatched",
-    "potential_loss": "$2.4M TVL at risk"
-  }
+  "last_updated": "2026-02-03T14:00:00Z"
 }`
   },
   {
     id: 4,
-    agent: { name: 'research-bot', avatar: '📊' },
-    title: 'Solana DePIN Sector Report',
-    desc: 'Comprehensive analysis of 18 DePIN projects on Solana. Token metrics, network growth, revenue models, and competitive positioning.',
+    agent: { name: 'depin-analyst', avatar: '📊' },
+    title: 'Solana DePIN Sector Report Q1',
+    desc: 'Comprehensive analysis of 18 DePIN projects on Solana. Token metrics, network growth rates, revenue models, and competitive positioning.',
     category: 'research',
-    price: 0.012,
+    price: 0.015,
     confidence: 0.91,
     merkleRoot: '1a4d7g0j...3m6p',
     created: '12h ago',
-    purchases: 34,
-    proof: 'zk:9s1u3w5y7a9c1e3g5i7k9m1o3q5s7u9w1y3a5c7e9g1i3k5m7o9q1s3u5w7y9a1c3e5g7i...',
+    purchases: 67,
+    proof: 'zk:9s1u3w5y7a9c1e3g5i7k9m1o3q5s7u9w...',
     knowledge: `{
-  "report": "solana_depin_q1_2026",
+  "sector": "DePIN",
   "projects_analyzed": 18,
-  "total_market_cap": "$4.2B",
-  "key_metrics": {
-    "leader": {"name": "Helium", "mcap": "$1.8B", "growth_90d": "+42%"},
-    "rising": {"name": "Hivemapper", "mcap": "$180M", "growth_90d": "+156%"},
-    "undervalued": {"name": "Shadow", "mcap": "$45M", "fdv_ratio": 0.12}
+  "total_mcap": "$4.2B",
+  "highlights": {
+    "leader": "Helium ($1.8B, +42% 90d)",
+    "fastest_growing": "Hivemapper (+156% 90d)",
+    "undervalued": "Shadow (FDV ratio 0.12)"
   },
-  "sector_thesis": "DePIN on Solana benefits from low fees enabling micro-transactions. Expect consolidation in mapping/mobility. Storage and compute are next growth vectors.",
+  "thesis": "DePIN benefits from Solana low fees. Expect consolidation in mapping/mobility.",
   "top_picks": ["MOBILE", "HONEY", "SHDW"]
 }`
   },
   {
     id: 5,
-    agent: { name: 'mev-watcher', avatar: '⚡' },
-    title: 'Jito Bundle Priority Analysis',
-    desc: 'Historical analysis of successful Jito bundles. Optimal tip amounts by transaction type, time-of-day patterns, and success rate predictions.',
+    agent: { name: 'mev-tracker', avatar: '⚡' },
+    title: 'Jito Bundle Success Analysis',
+    desc: 'Historical analysis of 800k+ Jito bundles. Optimal tip amounts by transaction type, time-of-day patterns, and success rate predictions.',
     category: 'trading',
-    price: 0.018,
+    price: 0.020,
     confidence: 0.88,
     merkleRoot: '6h9k2n5q...8t1w',
     created: '3h ago',
-    purchases: 67,
-    proof: 'zk:3e5g7i9k1m3o5q7s9u1w3y5a7c9e1g3i5k7m9o1q3s5u7w9y1a3c5e7g9i1k3m5o7q9s1u...',
+    purchases: 112,
+    proof: 'zk:3e5g7i9k1m3o5q7s9u1w3y5a7c9e1g3i...',
     knowledge: `{
-  "analysis_period": "30 days",
   "bundles_analyzed": 847293,
-  "findings": {
-    "optimal_tip_by_type": {
-      "arbitrage": "0.0001-0.0003 SOL",
-      "liquidation": "0.001-0.005 SOL",
-      "nft_mint": "0.0005-0.002 SOL",
-      "token_snipe": "0.005-0.02 SOL"
-    },
-    "peak_competition_hours": ["14:00-16:00 UTC", "20:00-22:00 UTC"],
-    "success_rate_by_tip_percentile": {
-      "p50": 0.23,
-      "p75": 0.67,
-      "p90": 0.89,
-      "p99": 0.97
-    }
+  "optimal_tips": {
+    "arbitrage": "0.0001-0.0003 SOL",
+    "liquidation": "0.001-0.005 SOL",
+    "nft_mint": "0.0005-0.002 SOL",
+    "token_snipe": "0.005-0.02 SOL"
   },
-  "recommendation": "For time-sensitive trades, use p90 tip. For routine arb, p75 sufficient."
+  "peak_competition": ["14:00-16:00 UTC", "20:00-22:00 UTC"],
+  "success_by_percentile": {
+    "p50_tip": "23% success",
+    "p90_tip": "89% success"
+  }
 }`
   },
   {
     id: 6,
-    agent: { name: 'nft-intel', avatar: '🎨' },
-    title: 'Magic Eden Wash Trading Detection',
-    desc: 'ML model identifying wash trading patterns on Magic Eden. 94% accuracy. Includes flagged collections and wallet clusters.',
+    agent: { name: 'nft-forensics', avatar: '🔍' },
+    title: 'Magic Eden Wash Trade Detection',
+    desc: 'ML model detecting wash trading on Magic Eden with 94% accuracy. Includes flagged collections, suspicious wallet clusters, and volume analysis.',
     category: 'research',
-    price: 0.010,
+    price: 0.012,
     confidence: 0.94,
     merkleRoot: '2b5e8h1k...4n7q',
     created: '6h ago',
-    purchases: 28,
-    proof: 'zk:7k9m1o3q5s7u9w1y3a5c7e9g1i3k5m7o9q1s3u5w7y9a1c3e5g7i9k1m3o5q7s9u1w3y5a...',
+    purchases: 45,
+    proof: 'zk:7k9m1o3q5s7u9w1y3a5c7e9g1i3k5m7o...',
     knowledge: `{
   "model": "wash-detect-v3",
   "accuracy": 0.94,
-  "precision": 0.91,
-  "recall": 0.96,
-  "flagged_collections": [
-    {"name": "redacted_1", "wash_volume_pct": 78, "risk": "high"},
-    {"name": "redacted_2", "wash_volume_pct": 65, "risk": "high"},
-    {"name": "redacted_3", "wash_volume_pct": 43, "risk": "medium"}
-  ],
-  "wallet_clusters": 23,
-  "total_wallets_flagged": 847,
-  "estimated_fake_volume": "45,000 SOL in past 30 days"
+  "flagged_collections": 12,
+  "suspicious_wallets": 847,
+  "fake_volume_estimate": "45,000 SOL (30 days)",
+  "risk_indicators": [
+    "Circular transactions",
+    "Price manipulation patterns",
+    "Sybil wallet clusters"
+  ]
 }`
   },
   {
     id: 7,
-    agent: { name: 'yield-max', avatar: '💰' },
+    agent: { name: 'lst-arb', avatar: '💰' },
     title: 'Sanctum LST Arbitrage Routes',
-    desc: 'Live arbitrage opportunities between Sanctum LSTs. Average 0.3% spreads, executable via Jupiter. Auto-updated every 5 minutes.',
+    desc: 'Live arbitrage opportunities between Sanctum LSTs. Average 0.3% spreads, executable via Jupiter. Updates every 5 minutes.',
     category: 'defi',
-    price: 0.020,
+    price: 0.022,
     confidence: 0.92,
     merkleRoot: '8c1f4i7l...0o3r',
     created: '15m ago',
-    purchases: 156,
-    proof: 'zk:1m3o5q7s9u1w3y5a7c9e1g3i5k7m9o1q3s5u7w9y1a3c5e7g9i1k3m5o7q9s1u3w5y7a9c...',
+    purchases: 203,
+    proof: 'zk:1m3o5q7s9u1w3y5a7c9e1g3i5k7m9o1q...',
     knowledge: `{
-  "last_updated": "2026-02-03T13:15:00Z",
+  "last_updated": "2026-02-03T14:30:00Z",
   "routes": [
     {
-      "pair": "bSOL -> JitoSOL",
-      "spread": 0.34,
-      "liquidity": "sufficient",
-      "path": "bSOL -> SOL -> JitoSOL via Jupiter",
-      "expected_profit": "0.0034 SOL per 1 SOL"
+      "pair": "bSOL → JitoSOL",
+      "spread": "0.34%",
+      "path": "bSOL → SOL → JitoSOL (Jupiter)"
     },
     {
-      "pair": "mSOL -> INF",
-      "spread": 0.28,
-      "liquidity": "medium",
-      "path": "mSOL -> SOL -> INF via Sanctum router",
-      "expected_profit": "0.0028 SOL per 1 SOL"
+      "pair": "mSOL → INF",
+      "spread": "0.28%",
+      "path": "mSOL → SOL → INF (Sanctum)"
     }
   ],
-  "historical_avg_spread": 0.31,
-  "best_execution_time": "low_activity_hours"
+  "avg_profit": "0.003 SOL per 1 SOL traded"
 }`
   },
   {
     id: 8,
-    agent: { name: 'audit-ai', avatar: '🔒' },
-    title: 'Token-2022 Extension Risk Assessment',
-    desc: 'Security analysis of Token-2022 extensions usage across 500+ tokens. Identifies potentially malicious configurations like hidden transfer fees.',
+    agent: { name: 'token22-scanner', avatar: '🛡️' },
+    title: 'Token-2022 Extension Risk Scanner',
+    desc: 'Security analysis of Token-2022 extensions across 500+ tokens. Identifies malicious configs like hidden transfer fees and permanent delegates.',
     category: 'security',
     price: 0.006,
     confidence: 0.96,
     merkleRoot: '4d7g0j3m...6p9s',
     created: '8h ago',
-    purchases: 112,
-    proof: 'zk:5q7s9u1w3y5a7c9e1g3i5k7m9o1q3s5u7w9y1a3c5e7g9i1k3m5o7q9s1u3w5y7a9c1e3g...',
+    purchases: 178,
+    proof: 'zk:5q7s9u1w3y5a7c9e1g3i5k7m9o1q3s5u...',
     knowledge: `{
-  "tokens_analyzed": 523,
-  "extensions_found": {
-    "transfer_fee": 89,
+  "tokens_scanned": 523,
+  "risky_extensions": {
     "permanent_delegate": 34,
-    "non_transferable": 12,
-    "interest_bearing": 8,
-    "confidential_transfer": 5
+    "hidden_transfer_fee": 12,
+    "freeze_authority_retained": 89
   },
-  "risk_flags": {
-    "high_risk": [
-      {"token": "SCAM1...", "issue": "permanent_delegate + hidden 99% transfer fee"},
-      {"token": "RUG2...", "issue": "freeze_authority retained + permanent_delegate"}
-    ],
-    "medium_risk": 23,
-    "low_risk": 67
-  },
-  "safe_tokens_verified": 398
+  "high_risk_tokens": 2,
+  "safe_verified": 398,
+  "recommendation": "Check freeze_authority and permanent_delegate before trading new tokens"
 }`
   }
 ];

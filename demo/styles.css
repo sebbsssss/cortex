@@ -625,6 +625,10 @@ footer a:hover {
 
 .modal-proof pre {
   margin-bottom: 1rem;
+  overflow-x: auto;
+  max-width: 100%;
+  white-space: pre-wrap;
+  word-break: break-all;
 }
 
 .modal-proof code {
@@ -632,6 +636,11 @@ footer a:hover {
   font-size: 0.7rem;
   color: var(--primary);
   word-break: break-all;
+  overflow-wrap: anywhere;
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .proof-status {
