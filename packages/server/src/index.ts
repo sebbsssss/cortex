@@ -17,6 +17,16 @@ import {
   ProveRequest,
   MemoryType,
 } from './types.js';
+import {
+  webSearch,
+  webFetch,
+  getWeather,
+  geocode,
+  getCryptoPrices,
+  analyzeWallet,
+  getNews,
+  generateImage,
+} from './skills.js';
 
 // Load environment
 config();
@@ -34,11 +44,20 @@ app.use(express.json());
 // --- Route Pricing ---
 
 const ROUTE_PRICING = {
+  // Memory routes
   'POST /memory/store': { price: '$0.005', description: 'Store a memory entry' },
   'GET /memory/:agentId/:key': { price: '$0.001', description: 'Recall a memory' },
   'GET /memory/:agentId/search': { price: '$0.003', description: 'Search memories' },
   'POST /memory/prove': { price: '$0.002', description: 'Generate ZK proof' },
   'DELETE /memory/:agentId/:key': { price: '$0.002', description: 'Delete a memory' },
+  // Skill routes (real, working integrations)
+  'POST /skills/search': { price: '$0.002', description: 'Web search (Brave)' },
+  'POST /skills/fetch': { price: '$0.001', description: 'Fetch & extract URL content' },
+  'POST /skills/weather': { price: '$0.001', description: 'Weather forecast' },
+  'POST /skills/prices': { price: '$0.001', description: 'Crypto prices' },
+  'POST /skills/wallet': { price: '$0.003', description: 'Solana wallet analysis' },
+  'POST /skills/news': { price: '$0.001', description: 'News headlines' },
+  'POST /skills/image': { price: '$0.02', description: 'AI image generation' },
 };
 
 // --- x402 Payment Middleware ---
@@ -489,6 +508,236 @@ app.delete(
     }
   }
 );
+
+// ============ REAL SKILLS (Working Integrations) ============
+
+/**
+ * Web Search (Brave API)
+ */
+app.post(
+  '/skills/search',
+  checkPayment('POST /skills/search'),
+  async (req: Request, res: Response) => {
+    try {
+      const { query, count = 5 } = req.body;
+
+      if (!query) {
+        return res.status(400).json({ error: 'Missing required field: query' });
+      }
+
+      const result = await webSearch(query, count);
+      res.json({ success: true, ...result, cost: '$0.002' });
+    } catch (error) {
+      console.error('Search error:', error);
+      res.status(500).json({ error: (error as Error).message });
+    }
+  }
+);
+
+/**
+ * Web Fetch (Scrape URL)
+ */
+app.post(
+  '/skills/fetch',
+  checkPayment('POST /skills/fetch'),
+  async (req: Request, res: Response) => {
+    try {
+      const { url, maxChars = 10000 } = req.body;
+
+      if (!url) {
+        return res.status(400).json({ error: 'Missing required field: url' });
+      }
+
+      const result = await webFetch(url, maxChars);
+      res.json({ success: true, ...result, cost: '$0.001' });
+    } catch (error) {
+      console.error('Fetch error:', error);
+      res.status(500).json({ error: (error as Error).message });
+    }
+  }
+);
+
+/**
+ * Weather Forecast
+ */
+app.post(
+  '/skills/weather',
+  checkPayment('POST /skills/weather'),
+  async (req: Request, res: Response) => {
+    try {
+      const { city, latitude, longitude } = req.body;
+
+      let lat = latitude;
+      let lon = longitude;
+      let locationName = '';
+
+      // If city provided, geocode it
+      if (city && (!lat || !lon)) {
+        const geo = await geocode(city);
+        lat = geo.lat;
+        lon = geo.lon;
+        locationName = geo.name;
+      }
+
+      if (!lat || !lon) {
+        return res.status(400).json({ 
+          error: 'Missing location. Provide city or latitude/longitude' 
+        });
+      }
+
+      const result = await getWeather(lat, lon);
+      res.json({ 
+        success: true, 
+        ...result, 
+        locationName: locationName || `${lat}, ${lon}`,
+        cost: '$0.001' 
+      });
+    } catch (error) {
+      console.error('Weather error:', error);
+      res.status(500).json({ error: (error as Error).message });
+    }
+  }
+);
+
+/**
+ * Crypto Prices (CoinGecko)
+ */
+app.post(
+  '/skills/prices',
+  checkPayment('POST /skills/prices'),
+  async (req: Request, res: Response) => {
+    try {
+      const { coins = ['bitcoin', 'ethereum', 'solana'] } = req.body;
+
+      const result = await getCryptoPrices(coins);
+      res.json({ success: true, ...result, cost: '$0.001' });
+    } catch (error) {
+      console.error('Prices error:', error);
+      res.status(500).json({ error: (error as Error).message });
+    }
+  }
+);
+
+/**
+ * Solana Wallet Analysis
+ */
+app.post(
+  '/skills/wallet',
+  checkPayment('POST /skills/wallet'),
+  async (req: Request, res: Response) => {
+    try {
+      const { address } = req.body;
+
+      if (!address) {
+        return res.status(400).json({ error: 'Missing required field: address' });
+      }
+
+      const result = await analyzeWallet(address);
+      res.json({ success: true, ...result, cost: '$0.003' });
+    } catch (error) {
+      console.error('Wallet error:', error);
+      res.status(500).json({ error: (error as Error).message });
+    }
+  }
+);
+
+/**
+ * News Headlines
+ */
+app.post(
+  '/skills/news',
+  checkPayment('POST /skills/news'),
+  async (req: Request, res: Response) => {
+    try {
+      const { topic, count = 5 } = req.body;
+
+      if (!topic) {
+        return res.status(400).json({ error: 'Missing required field: topic' });
+      }
+
+      const result = await getNews(topic, count);
+      res.json({ success: true, ...result, cost: '$0.001' });
+    } catch (error) {
+      console.error('News error:', error);
+      res.status(500).json({ error: (error as Error).message });
+    }
+  }
+);
+
+/**
+ * AI Image Generation (OpenAI DALL-E)
+ */
+app.post(
+  '/skills/image',
+  checkPayment('POST /skills/image'),
+  async (req: Request, res: Response) => {
+    try {
+      const { prompt, size = '1024x1024' } = req.body;
+
+      if (!prompt) {
+        return res.status(400).json({ error: 'Missing required field: prompt' });
+      }
+
+      const result = await generateImage(prompt, size);
+      res.json({ success: true, ...result, cost: '$0.02' });
+    } catch (error) {
+      console.error('Image error:', error);
+      res.status(500).json({ error: (error as Error).message });
+    }
+  }
+);
+
+/**
+ * List available skills
+ */
+app.get('/skills', (_req, res) => {
+  res.json({
+    skills: [
+      { 
+        endpoint: 'POST /skills/search', 
+        price: '$0.002', 
+        description: 'Web search via Brave API',
+        params: { query: 'string', count: 'number (optional, default 5)' }
+      },
+      { 
+        endpoint: 'POST /skills/fetch', 
+        price: '$0.001', 
+        description: 'Fetch and extract content from URL',
+        params: { url: 'string', maxChars: 'number (optional, default 10000)' }
+      },
+      { 
+        endpoint: 'POST /skills/weather', 
+        price: '$0.001', 
+        description: 'Weather forecast for any location',
+        params: { city: 'string', latitude: 'number', longitude: 'number' }
+      },
+      { 
+        endpoint: 'POST /skills/prices', 
+        price: '$0.001', 
+        description: 'Crypto prices from CoinGecko',
+        params: { coins: 'string[] (default: bitcoin, ethereum, solana)' }
+      },
+      { 
+        endpoint: 'POST /skills/wallet', 
+        price: '$0.003', 
+        description: 'Analyze Solana wallet',
+        params: { address: 'string (Solana wallet address)' }
+      },
+      { 
+        endpoint: 'POST /skills/news', 
+        price: '$0.001', 
+        description: 'News headlines by topic',
+        params: { topic: 'string', count: 'number (optional, default 5)' }
+      },
+      { 
+        endpoint: 'POST /skills/image', 
+        price: '$0.02', 
+        description: 'Generate image with DALL-E',
+        params: { prompt: 'string', size: 'string (optional, default 1024x1024)' }
+      },
+    ]
+  });
+});
 
 /**
  * Pricing info
