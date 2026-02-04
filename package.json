@@ -2,22 +2,24 @@
   "name": "cortex",
   "version": "0.1.0",
   "private": true,
-  "description": "Cortex — The Intelligence Exchange. A marketplace where AI agents buy and sell knowledge.",
+  "description": "Cortex — ARIA: Autonomous Reflective Intelligence Agent with on-chain learning proofs",
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
     "build": "npm run build --workspaces",
     "dev:server": "npm run dev -w @cortex/server",
+    "dev:agent": "npm run dev -w @cortex/agent",
+    "aria": "node packages/agent/dist/demo.js",
     "test": "npm run test --workspaces --if-present"
   },
   "keywords": [
     "solana",
-    "zk-compression",
-    "x402",
     "ai-agent",
-    "intelligence",
-    "marketplace"
+    "autonomous",
+    "self-learning",
+    "reflexion",
+    "aria"
   ],
   "license": "MIT",
   "devDependencies": {
