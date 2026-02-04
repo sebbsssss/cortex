@@ -1,4 +1,4 @@
-// ARIA Demo - Self-Learning Agent Visualization
+// Cortex Demo - Self-Learning Agent Visualization
 
 // State
 let running = false;
@@ -38,7 +38,7 @@ function toggleDemo() {
   } else {
     running = true;
     startBtn.textContent = '⏸️ Pause';
-    log('Starting ARIA agent...', 'system');
+    log('Starting Cortex agent...', 'system');
     log('Goals: Research crypto trends, Monitor prices', 'info');
     runLoop();
   }
