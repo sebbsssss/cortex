@@ -1,5 +1,5 @@
 /**
- * ARIA - Autonomous Reflective Intelligence Agent
+ * Cortex - Autonomous Reflective Intelligence Agent
  * Core type definitions
  */
 
@@ -134,7 +134,7 @@ export interface Milestone {
 }
 
 // ============ AGENT CONFIG ============
-export interface ARIAConfig {
+export interface CortexConfig {
   name: string;
   goals: Goal[];
   reflectionThreshold: number;  // Score below this triggers strategy update

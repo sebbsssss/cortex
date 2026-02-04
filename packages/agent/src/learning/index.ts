@@ -1,5 +1,5 @@
 /**
- * ARIA Learning Module
+ * Cortex Learning Module
  * 
  * ML-inspired techniques for autonomous agent improvement:
  * - Experience Replay + TD Learning (classic RL)

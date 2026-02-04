@@ -1,5 +1,5 @@
 /**
- * ARIA v2 - Autonomous Reflective Intelligence Agent
+ * Cortex v2 - Autonomous Reflective Intelligence Agent
  * 
  * Full ML-based learning stack:
  * - Experience Replay + TD Learning
@@ -21,7 +21,7 @@ import {
 } from './learning/index.js';
 import { Milestone } from './types.js';
 
-export interface ARIAv2Config {
+export interface CortexAgentConfig {
   name: string;
   goals: Goal[];
   
@@ -61,8 +61,8 @@ export interface ActionResult {
   duration: number;
 }
 
-export class ARIAv2 {
-  private config: ARIAv2Config;
+export class CortexAgent {
+  private config: CortexAgentConfig;
   private goals: Goal[];
   
   // Learning modules
@@ -107,7 +107,7 @@ export class ARIAv2 {
   private onMilestone?: (milestone: Milestone) => Promise<void>;
   private onLog?: (message: string, level: string) => void;
 
-  constructor(config: ARIAv2Config) {
+  constructor(config: CortexAgentConfig) {
     this.config = config;
     this.goals = [...config.goals];
     
@@ -160,7 +160,7 @@ export class ARIAv2 {
 
   async run(maxIterations: number = Infinity): Promise<void> {
     this.running = true;
-    this.log(`Starting ARIA v2: ${this.config.name}`, 'system');
+    this.log(`Starting Cortex v2: ${this.config.name}`, 'system');
     this.log(`Goals: ${this.goals.map(g => g.description).join(', ')}`, 'info');
 
     while (this.running && this.iteration < maxIterations) {
@@ -652,7 +652,7 @@ export class ARIAv2 {
       this.onLog(message, level);
     } else {
       const prefix = {
-        system: '[ARIA]',
+        system: '[Cortex]',
         info: '[INFO]',
         perceive: '[PERCEIVE]',
         reason: '[REASON]',

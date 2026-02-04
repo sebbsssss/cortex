@@ -1,5 +1,5 @@
 /**
- * Solana integration for ARIA milestones
+ * Solana integration for Cortex milestones
  * Records learning milestones on-chain as proof of improvement
  */
 
@@ -30,7 +30,7 @@ export class MilestoneRecorder {
       description: milestone.description,
       metrics: milestone.metrics,
       timestamp: milestone.timestamp,
-      agent: 'ARIA',
+      agent: 'Cortex',
     });
 
     console.log(`[Solana] Recording milestone: ${milestone.description}`);

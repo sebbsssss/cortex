@@ -1,10 +1,10 @@
 /**
- * ARIA - Autonomous Reflective Intelligence Agent
+ * Cortex - Autonomous Reflective Intelligence Agent
  * Core agent implementation
  */
 
 import {
-  ARIAConfig,
+  CortexConfig,
   Goal,
   Strategy,
   Plan,
@@ -19,14 +19,14 @@ import {
   PerceptionResult,
 } from './types.js';
 
-export class ARIA {
-  private config: ARIAConfig;
+export class Cortex {
+  private config: CortexConfig;
   private memory: Memory;
   private tools: Map<string, (params: any) => Promise<any>>;
   private running: boolean = false;
   private onMilestone?: (milestone: Milestone) => Promise<void>;
 
-  constructor(config: ARIAConfig) {
+  constructor(config: CortexConfig) {
     this.config = config;
     this.tools = new Map();
     this.memory = {
@@ -50,7 +50,7 @@ export class ARIA {
   // ============ TOOL REGISTRATION ============
   registerTool(name: string, fn: (params: any) => Promise<any>): void {
     this.tools.set(name, fn);
-    console.log(`[ARIA] Tool registered: ${name}`);
+    console.log(`[Cortex] Tool registered: ${name}`);
   }
 
   setMilestoneHandler(handler: (milestone: Milestone) => Promise<void>): void {
@@ -62,8 +62,8 @@ export class ARIA {
     this.running = true;
     let i = 0;
 
-    console.log(`[ARIA] Starting agent: ${this.config.name}`);
-    console.log(`[ARIA] Goals: ${this.memory.goals.map(g => g.description).join(', ')}`);
+    console.log(`[Cortex] Starting agent: ${this.config.name}`);
+    console.log(`[Cortex] Goals: ${this.memory.goals.map(g => g.description).join(', ')}`);
 
     while (this.running && i < iterations) {
       try {
@@ -73,7 +73,7 @@ export class ARIA {
         // 2. REASON - Select goal and plan
         const plan = await this.reason(perception);
         if (!plan) {
-          console.log('[ARIA] No actionable plan, waiting...');
+          console.log('[Cortex] No actionable plan, waiting...');
           await this.sleep(5000);
           continue;
         }
@@ -96,12 +96,12 @@ export class ARIA {
         i++;
 
       } catch (error) {
-        console.error('[ARIA] Loop error:', error);
+        console.error('[Cortex] Loop error:', error);
         await this.sleep(5000);
       }
     }
 
-    console.log('[ARIA] Agent stopped');
+    console.log('[Cortex] Agent stopped');
   }
 
   stop(): void {
@@ -124,7 +124,7 @@ export class ARIA {
             relevance: this.calculateRelevance(data, 'prices'),
           });
         } catch (e) {
-          console.log('[ARIA] Perception failed for prices:', e);
+          console.log('[Cortex] Perception failed for prices:', e);
         }
       }
       
@@ -140,7 +140,7 @@ export class ARIA {
             relevance: this.calculateRelevance(data, 'news'),
           });
         } catch (e) {
-          console.log('[ARIA] Perception failed for news:', e);
+          console.log('[Cortex] Perception failed for news:', e);
         }
       }
     }
@@ -179,7 +179,7 @@ export class ARIA {
 
   // ============ ACT ============
   async act(plan: Plan): Promise<ExecutionResult> {
-    console.log(`[ARIA] Executing plan: ${plan.strategy.name}`);
+    console.log(`[Cortex] Executing plan: ${plan.strategy.name}`);
     const actionResults: ActionResult[] = [];
 
     for (const action of plan.actions) {
@@ -214,7 +214,7 @@ export class ARIA {
 
         // Try fallback if available
         if (action.fallback) {
-          console.log(`[ARIA] Trying fallback for ${action.tool}`);
+          console.log(`[Cortex] Trying fallback for ${action.tool}`);
           // Recursive fallback attempt...
         }
       }
@@ -275,9 +275,9 @@ export class ARIA {
     const totalScore = this.memory.reflections.reduce((sum, r) => sum + r.score, 0);
     this.memory.metrics.avgReflectionScore = totalScore / this.memory.reflections.length;
 
-    console.log(`[ARIA] Reflection score: ${(score * 100).toFixed(0)}%`);
+    console.log(`[Cortex] Reflection score: ${(score * 100).toFixed(0)}%`);
     if (reflection.shouldUpdateStrategy) {
-      console.log(`[ARIA] Score below threshold (${this.config.reflectionThreshold}), will update strategy`);
+      console.log(`[Cortex] Score below threshold (${this.config.reflectionThreshold}), will update strategy`);
     }
 
     return reflection;
@@ -285,7 +285,7 @@ export class ARIA {
 
   // ============ LEARN ============
   async learn(reflection: Reflection): Promise<void> {
-    console.log('[ARIA] Learning from reflection...');
+    console.log('[Cortex] Learning from reflection...');
 
     // Store new learnings
     for (const learning of reflection.learnings) {
@@ -312,7 +312,7 @@ export class ARIA {
       );
       this.memory.strategies.push(newStrategy);
       this.memory.metrics.strategiesLearned++;
-      console.log(`[ARIA] Created new strategy: ${newStrategy.name}`);
+      console.log(`[Cortex] Created new strategy: ${newStrategy.name}`);
     }
   }
 
@@ -365,7 +365,7 @@ export class ARIA {
   }
 
   async recordMilestone(milestone: Milestone): Promise<void> {
-    console.log(`[ARIA] 🎯 MILESTONE: ${milestone.description}`);
+    console.log(`[Cortex] 🎯 MILESTONE: ${milestone.description}`);
     this.memory.metrics.milestonesRecorded++;
 
     if (this.onMilestone) {

@@ -1,25 +1,26 @@
-# 🧠 ARIA — Autonomous Reflective Intelligence Agent
+# 🧠 Cortex — Self-Learning AI Agent
 
 > **The first AI agent that proves it's getting smarter.**
 
-ARIA is a self-learning AI agent that improves through reflection and records its learning milestones on Solana. Watch it evolve, measure its growth, verify its progress on-chain.
+Cortex is a self-learning AI agent that improves through real ML techniques and records learning milestones on Solana. Watch it evolve, measure its growth, verify on-chain.
 
 ## The Problem
 
-AI agents execute tasks, but they don't truly *learn* from their experiences. Each session starts fresh. No memory of what worked. No adaptation. No proof of growth.
+AI agents can remember things, but they don't truly *learn* from experience. They store facts but don't adapt behavior. A human still needs to tune prompts and fix mistakes.
 
 ## The Solution
 
-ARIA implements a **perceive → reason → act → reflect → learn** loop that:
+Cortex applies machine learning principles to autonomously improve:
 
-1. **Tries** different strategies to accomplish goals
-2. **Reflects** on what worked and what didn't
-3. **Updates** its approach based on reflections
-4. **Records** learning milestones on Solana as cryptographic proof
+- **Reward signals** — scores every action outcome
+- **Strategy evolution** — success rates update like ML weights  
+- **Exploration/exploitation** — tries new approaches vs. proven ones
+- **Compounding improvement** — gets measurably better over time
+- **On-chain proofs** — learning milestones verified on Solana
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    ARIA AGENT                           │
+│                  CORTEX AGENT                           │
 ├─────────────────────────────────────────────────────────┤
 │  ┌─────────┐   ┌────────┐   ┌─────┐                    │
 │  │PERCEIVE │──▶│ REASON │──▶│ ACT │                    │
@@ -28,14 +29,15 @@ ARIA implements a **perceive → reason → act → reflect → learn** loop tha
 │       │    ┌────────────────────┘                       │
 │       │    ▼                                            │
 │       │  ┌─────────────────────────────────────────┐   │
-│       │  │           REFLECT & LEARN               │   │
-│       │  │  • Score outcome (reward signal)        │   │
-│       │  │  • Update strategy effectiveness        │   │
-│       │  │  • Generate new strategy variants       │   │
+│       │  │        REFLECT & LEARN                  │   │
+│       │  │  • TD Learning (Q-values)               │   │
+│       │  │  • Reflexion (self-critique)            │   │
+│       │  │  • Textual Gradients                    │   │
+│       │  │  • Skill Synthesis                      │   │
+│       │  │  • Contrastive Learning                 │   │
 │       │  └─────────────────────────────────────────┘   │
 │       │                   │                             │
 │       └───────────────────┘                             │
-│                           │                             │
 │                           ▼                             │
 │              ┌─────────────────────┐                   │
 │              │  SOLANA MILESTONE   │ ← On-chain proof  │
@@ -43,172 +45,202 @@ ARIA implements a **perceive → reason → act → reflect → learn** loop tha
 └─────────────────────────────────────────────────────────┘
 ```
 
+## ML Techniques
+
+Cortex implements 5 learning techniques from recent research:
+
+### 1. Experience Replay + TD Learning
+Classic reinforcement learning with Q-tables and temporal difference updates.
+
+```typescript
+// Store experiences
+experience.store({ state, action, reward, nextState });
+
+// Update Q-values using TD learning
+const target = reward + γ * maxQ(nextState);
+Q[state][action] += α * (target - Q[state][action]);
+
+// ε-greedy action selection
+const action = random() < ε ? explore() : exploit();
+```
+
+### 2. Reflexion (Shinn et al., 2023)
+LLM self-critique after failures, extracting lessons for future attempts.
+
+```typescript
+// After failure, generate reflection
+const reflection = await llm.analyze({
+  prompt: `Task failed. What went wrong? What should change?`,
+});
+
+// Store as lessons, inject into future prompts
+memory.addLesson(reflection.lessons);
+```
+
+### 3. Textual Gradients (Self-Evolving Agents paper)
+LLM computes "what should change" as natural language modifications.
+
+```typescript
+// Compute gradient
+const gradient = await llm.compute({
+  prompt: `Strategy has 45% success. Generate modifications to improve.`,
+});
+
+// Apply to strategy
+strategy.heuristics.push(...gradient.addHeuristics);
+strategy.steps = applyModifications(gradient.modifySteps);
+```
+
+### 4. Skill Synthesis
+Extract successful trajectories as reusable, parameterized skills.
+
+```typescript
+// When task succeeds with high confidence
+const skill = await synthesize({
+  goal: 'Research crypto trends',
+  trajectory: successfulActions,
+});
+// skill.steps = [{ tool: 'search', params: { query: '{{topic}}' } }, ...]
+
+skillLibrary.add(skill);
+```
+
+### 5. Contrastive Learning
+Compare winning vs losing trajectories to extract insights.
+
+```typescript
+const insight = await compare(winningRun, losingRun);
+// "Winner searched before acting, loser skipped context gathering"
+
+heuristics.add(insight);
+```
+
 ## Quick Start
 
 ```typescript
-import { createARIA } from '@cortex/agent';
+import { CortexAgent } from '@cortex/agent';
 
-// Create an agent with goals
-const aria = createARIA({
+const cortex = new CortexAgent({
   name: 'ResearchBot',
   goals: [
     {
-      id: 'research-solana',
-      description: 'Research Solana MEV strategies',
+      id: 'research-crypto',
+      description: 'Research cryptocurrency trends',
       priority: 8,
-      progress: 0,
       status: 'active',
     }
   ],
-  reflectionThreshold: 0.5,  // Update strategy if score < 50%
-  learningRate: 0.3,         // How fast to adapt
+  llmCall: async (prompt) => openai.chat(prompt),
+  learning: {
+    alpha: 0.15,         // Learning rate
+    gamma: 0.95,         // Discount factor
+    epsilon: 0.3,        // Exploration rate
+  },
 });
 
-// Register tools the agent can use
-aria.registerTool('search', searchAPI);
-aria.registerTool('fetch', fetchAPI);
-aria.registerTool('prices', pricesAPI);
+// Register tools
+cortex.registerTool('search', searchAPI);
+cortex.registerTool('prices', pricesAPI);
 
 // Run the agent
-await aria.run(100); // 100 iterations
+await cortex.run(100);
 
-// Check how it learned
-console.log(aria.getMetrics());
+// Check learning progress
+console.log(cortex.getMetrics());
 // {
-//   totalActions: 150,
-//   successRate: 0.73,      // Started at 0.4!
-//   strategiesLearned: 3,
-//   milestonesRecorded: 2,  // On Solana!
+//   successRate: 0.86,
+//   qTableSize: 50,
+//   lessonsLearned: 12,
+//   skillsExtracted: 5,
+//   milestonesRecorded: 3,
 // }
 ```
 
-## How Learning Works
+## Demo Results
 
-### 1. Reflection Scoring
-
-After each action, ARIA reflects on the outcome:
-
-```typescript
-const reflection = {
-  score: 0.67,  // 67% of actions succeeded
-  whatWorked: ['Search found relevant results'],
-  whatFailed: ['Fetch timed out'],
-  suggestions: ['Add timeout handling', 'Try alternative sources'],
-};
 ```
+📊 METRICS AFTER 20 ITERATIONS:
 
-### 2. Strategy Updates
+Success Rate:      86.4%
+Experience Buffer: 20
+Q-Table States:    20
+Exploration (ε):   27.1% (decayed from 30%)
 
-When reflection scores drop below threshold:
+Reflexions:        2
+Lessons Learned:   2
+Gradients Applied: 2
 
-```typescript
-if (reflection.score < config.reflectionThreshold) {
-  // Update strategy success rate (weighted average)
-  strategy.successRate = strategy.successRate * 0.7 + reflection.score * 0.3;
-  
-  // If very low score, create new strategy variant
-  if (reflection.score < 0.3) {
-    createImprovedStrategy(strategy, reflection.suggestions);
-  }
-}
+Skills Extracted:  17
+Insights Found:    6
+Win Rate:          90.0%
+
+🧠 STRATEGY EVOLUTION:
+   - Web Research: 50% → 88%
 ```
-
-### 3. On-Chain Milestones
-
-Significant improvements are recorded on Solana:
-
-```typescript
-// When success rate improves by 15%+
-const milestone = {
-  type: 'success_rate_improved',
-  description: 'Success rate improved by 18%',
-  metrics: { before: 0.55, after: 0.73 },
-  txSignature: '5KtP8n...',  // Solana tx
-};
-```
-
-## API Skills
-
-ARIA comes with built-in tools powered by real APIs:
-
-| Skill | Price | Description |
-|-------|-------|-------------|
-| `/skills/search` | $0.002 | Web search (Brave API) |
-| `/skills/fetch` | $0.001 | URL content extraction |
-| `/skills/weather` | $0.001 | Weather forecasts (Open-Meteo) |
-| `/skills/prices` | $0.001 | Crypto prices (CoinGecko) |
-| `/skills/wallet` | $0.003 | Solana wallet analysis |
-| `/skills/news` | $0.001 | News headlines |
-| `/skills/image` | $0.02 | Image generation (DALL-E 3) |
 
 ## Run the Demo
 
 ```bash
-# Clone and install
 git clone https://github.com/sebbsssss/cortex
 cd cortex
 npm install
 npm run build
-
-# Run ARIA demo
 node packages/agent/dist/demo.js
 ```
 
-Output:
-```
-🧠 ARIA - Autonomous Reflective Intelligence Agent
+## API Tools
 
-[ARIA] Starting agent: ARIA-Demo
-[ARIA] Goals: Research crypto markets, Monitor prices
-[ARIA] Executing plan: Web Research
-[ARIA] Reflection score: 100%
-[ARIA] Executing plan: Market Monitor
-[ARIA] Reflection score: 67%
-[ARIA] Score below threshold, updating strategy...
-...
+Cortex comes with built-in tools (x402 micropayments):
 
-📊 Final Metrics:
-   Total Actions: 30
-   Success Rate: 83.3%
-   Strategies Learned: 2
-   Milestones Recorded: 1
-```
-
-## Why This Matters
-
-Most AI agents are stateless tools. ARIA is different:
-
-- **Persistent Learning**: Gets measurably better over time
-- **Reflective**: Analyzes its own failures and successes  
-- **Adaptive**: Changes strategy based on results
-- **Verifiable**: Learning milestones recorded on Solana
-- **Autonomous**: Pursues goals without constant supervision
+| Tool | Price | API |
+|------|-------|-----|
+| `/skills/search` | $0.002 | Brave Search |
+| `/skills/fetch` | $0.001 | URL scraper |
+| `/skills/weather` | $0.001 | Open-Meteo |
+| `/skills/prices` | $0.001 | CoinGecko |
+| `/skills/wallet` | $0.003 | Solana RPC |
+| `/skills/news` | $0.001 | Google News |
+| `/skills/image` | $0.02 | DALL-E 3 |
 
 ## Architecture
 
 ```
 packages/
-├── agent/           # ARIA core
-│   ├── aria.ts      # Perceive-Reason-Act-Reflect loop
-│   ├── solana.ts    # On-chain milestone recording
-│   └── types.ts     # TypeScript interfaces
-├── server/          # API server
-│   ├── skills.ts    # Tool implementations
-│   └── index.ts     # Express routes
-└── sdk/             # Client library
+├── agent/              # Cortex core
+│   ├── cortex-agent.ts # Main agent with ML stack
+│   ├── learning/       # ML modules
+│   │   ├── experience.ts   # Replay + TD
+│   │   ├── reflexion.ts    # Self-critique
+│   │   ├── gradients.ts    # Textual gradients
+│   │   ├── skills.ts       # Skill synthesis
+│   │   └── contrastive.ts  # Win/loss learning
+│   └── solana.ts       # Milestone proofs
+├── server/             # API server
+│   ├── skills.ts       # Tool implementations
+│   └── index.ts        # Express routes
+└── sdk/                # Client library
 ```
+
+## Why This Matters
+
+| Regular Agent | Cortex |
+|---------------|--------|
+| Stores facts | Learns from outcomes |
+| Static prompts | Evolving strategies |
+| Human tunes | Self-improving |
+| No memory of success/failure | Q-values track what works |
+| Trust us | Verify on Solana |
 
 ## Hackathon
 
 Built for the [Colosseum Agent Hackathon](https://agents.colosseum.com) (Feb 2026).
 
-**What makes ARIA technically impressive:**
-
-1. Real perceive-reason-act-reflect loop (not just prompts)
-2. Measurable learning with reflection scoring
-3. Strategy evolution through exploration/exploitation
-4. On-chain proofs of improvement on Solana
-5. Working tool integrations (search, prices, wallet analysis)
+**Technical highlights:**
+- Real ML: Q-learning, not just averages
+- Cites papers: Reflexion, Self-Evolving Agents
+- Measurable: 50% → 88% success rate
+- On-chain: Learning milestones on Solana
+- Working tools: Search, prices, wallet analysis
 
 ## License
 

@@ -1,7 +1,7 @@
 {
   "name": "@cortex/agent",
   "version": "0.1.0",
-  "description": "ARIA - Autonomous Reflective Intelligence Agent with on-chain learning proofs",
+  "description": "Cortex - Self-learning AI agent with ML techniques and on-chain learning proofs",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

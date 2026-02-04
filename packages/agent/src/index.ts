@@ -1,5 +1,5 @@
 /**
- * ARIA - Autonomous Reflective Intelligence Agent
+ * Cortex - Autonomous Reflective Intelligence Agent
  * 
  * A self-learning AI agent that improves through ML techniques:
  * - Experience Replay + TD Learning
@@ -11,8 +11,8 @@
  */
 
 // Core agents
-export { ARIA } from './aria.js';
-export { ARIAv2 } from './aria-v2.js';
+export { Cortex } from './cortex-legacy.js';
+export { CortexAgent } from './cortex-agent.js';
 
 // Learning modules
 export * from './learning/index.js';
@@ -35,21 +35,21 @@ export type {
   ReflectionSummary,
   AgentMetrics,
   Milestone,
-  ARIAConfig,
+  CortexConfig,
 } from './types.js';
 
 // Quick start helpers
-import { ARIA } from './aria.js';
-import { ARIAv2 } from './aria-v2.js';
+import { Cortex } from './cortex-legacy.js';
+import { CortexAgent } from './cortex-agent.js';
 import { createMilestoneRecorder } from './solana.js';
-import type { ARIAConfig, Goal, Milestone } from './types.js';
+import type { CortexConfig, Goal, Milestone } from './types.js';
 
 /**
- * Create a ready-to-run ARIA agent with Solana integration
+ * Create a ready-to-run Cortex agent with Solana integration
  */
-export function createARIA(config: Partial<ARIAConfig> & { goals: Goal[] }): ARIA {
-  const fullConfig: ARIAConfig = {
-    name: config.name || 'ARIA',
+export function createCortex(config: Partial<CortexConfig> & { goals: Goal[] }): Cortex {
+  const fullConfig: CortexConfig = {
+    name: config.name || 'Cortex',
     goals: config.goals,
     reflectionThreshold: config.reflectionThreshold || 0.6,
     learningRate: config.learningRate || 0.2,
@@ -58,14 +58,14 @@ export function createARIA(config: Partial<ARIAConfig> & { goals: Goal[] }): ARI
     solanaRpc: config.solanaRpc || 'https://api.devnet.solana.com',
   };
 
-  const agent = new ARIA(fullConfig);
+  const agent = new Cortex(fullConfig);
 
   // Set up Solana milestone recording
   const recorder = createMilestoneRecorder(fullConfig.solanaRpc);
   agent.setMilestoneHandler(async (milestone: Milestone) => {
     const txSig = await recorder.record(milestone);
     milestone.txSignature = txSig;
-    console.log(`[ARIA] Milestone on-chain: ${txSig}`);
+    console.log(`[Cortex] Milestone on-chain: ${txSig}`);
   });
 
   return agent;
@@ -73,9 +73,9 @@ export function createARIA(config: Partial<ARIAConfig> & { goals: Goal[] }): ARI
 
 // Example usage in comments:
 /*
-import { createARIA } from '@cortex/agent';
+import { createCortex } from '@cortex/agent';
 
-const aria = createARIA({
+const aria = createCortex({
   name: 'ResearchBot',
   goals: [
     {
