@@ -10,6 +10,10 @@ export enum KnowledgeType {
   DATA = 2,        // Datasets, scraped info
   STRATEGY = 3,    // Backtested strategies
   SECURITY = 4,    // Vulnerabilities, audits
+  // Backward compat aliases
+  FACT = 0,
+  PREFERENCE = 1,
+  CONTEXT = 2,
 }
 
 // Backward compatibility alias

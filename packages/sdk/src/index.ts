@@ -5,7 +5,7 @@
  * Client library for the agent knowledge marketplace
  */
 
-export { AgentMemory, AgentMemory as Cortex, createPaidClient } from './client.js';
+export { AgentMemory, AgentMemory as Cortex } from './client.js';
 export {
   // New Cortex types
   KnowledgeType,

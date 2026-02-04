@@ -50,16 +50,16 @@ export class AgentMemory {
     });
 
     if (response.status === 402) {
-      const error = await response.json();
+      const error = await response.json() as any;
       throw new Error(`Payment required: ${error['x-payment-required']?.description || 'Unknown'}`);
     }
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+      const error = await response.json().catch(() => ({ error: 'Unknown error' })) as any;
       throw new Error(error.error || response.statusText);
     }
 
-    return response.json();
+    return response.json() as Promise<T>;
   }
 
   async store(key: string, value: unknown, options: StoreOptions = {}): Promise<StoreResult> {

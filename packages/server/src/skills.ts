@@ -25,7 +25,7 @@ export async function webSearch(query: string, count: number = 5): Promise<any> 
     throw new Error(`Brave search failed: ${response.status}`);
   }
 
-  const data = await response.json();
+  const data = await response.json() as any;
   
   return {
     query,
@@ -87,7 +87,7 @@ export async function getWeather(latitude: number, longitude: number): Promise<a
     throw new Error(`Weather API failed: ${response.status}`);
   }
 
-  const data = await response.json();
+  const data = await response.json() as any;
 
   // Weather code to description
   const weatherCodes: Record<number, string> = {
@@ -140,7 +140,7 @@ export async function geocode(city: string): Promise<{ lat: number; lon: number;
     throw new Error(`Geocoding failed: ${response.status}`);
   }
 
-  const data = await response.json();
+  const data = await response.json() as any;
   
   if (!data.results || data.results.length === 0) {
     throw new Error(`Location not found: ${city}`);
@@ -166,7 +166,7 @@ export async function getCryptoPrices(coins: string[]): Promise<any> {
     throw new Error(`CoinGecko API failed: ${response.status}`);
   }
 
-  const data = await response.json();
+  const data = await response.json() as Record<string, any>;
 
   return {
     prices: Object.entries(data).map(([coin, info]: [string, any]) => ({
@@ -203,7 +203,7 @@ export async function analyzeWallet(address: string): Promise<any> {
         }),
       }
     );
-    const balanceData = await balanceRes.json();
+    const balanceData = await balanceRes.json() as any;
     const solBalance = (balanceData.result?.value || 0) / 1e9;
 
     // Get token accounts
@@ -224,7 +224,7 @@ export async function analyzeWallet(address: string): Promise<any> {
         }),
       }
     );
-    const tokenData = await tokenRes.json();
+    const tokenData = await tokenRes.json() as any;
     const tokens = tokenData.result?.value?.length || 0;
 
     // Get recent transactions
@@ -241,7 +241,7 @@ export async function analyzeWallet(address: string): Promise<any> {
         }),
       }
     );
-    const txData = await txRes.json();
+    const txData = await txRes.json() as any;
     const recentTxCount = txData.result?.length || 0;
 
     return {
@@ -272,7 +272,7 @@ async function analyzeWalletBasic(address: string): Promise<any> {
     }),
   });
 
-  const data = await response.json();
+  const data = await response.json() as any;
   
   if (data.error) {
     throw new Error(`RPC error: ${data.error.message}`);
@@ -354,7 +354,7 @@ export async function generateImage(prompt: string, size: string = '1024x1024'):
     throw new Error(`Image generation failed: ${error}`);
   }
 
-  const data = await response.json();
+  const data = await response.json() as any;
 
   return {
     prompt,
