@@ -4,7 +4,7 @@
 // Configuration
 const API_URL = window.location.hostname === 'localhost' 
   ? 'http://localhost:4021' 
-  : 'https://api.crtx.tech'; // Update when deployed
+  : 'https://cortex-api-production-2fac.up.railway.app';
 
 // State
 let eventSource = null;
