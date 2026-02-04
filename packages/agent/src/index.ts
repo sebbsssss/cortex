@@ -20,6 +20,9 @@ export * from './learning/index.js';
 // Solana integration
 export { MilestoneRecorder, createMilestoneRecorder } from './solana.js';
 
+// LLM integration
+export { ClaudeLLM, createClaudeLLM, createLLMFromEnv } from './llm.js';
+
 // Types (export selectively to avoid conflicts)
 export type {
   Observation,
