@@ -740,6 +740,24 @@ app.get('/skills', (_req, res) => {
 });
 
 /**
+ * Live Agent Stream (SSE)
+ * Runs Cortex agent and streams real-time events
+ */
+app.get('/agent/stream', async (req: Request, res: Response) => {
+  const apiKey = (req.query.apiKey as string) || process.env.ANTHROPIC_API_KEY;
+  const iterations = parseInt(req.query.iterations as string) || 10;
+  const goal = req.query.goal as string;
+
+  if (!apiKey) {
+    return res.status(400).json({ error: 'API key required (query param or ANTHROPIC_API_KEY env)' });
+  }
+
+  // Import dynamically to avoid circular deps
+  const { runAgentWithStream } = await import('./agent-stream.js');
+  await runAgentWithStream(res, { apiKey, iterations, goal });
+});
+
+/**
  * Pricing info
  */
 app.get('/pricing', (_req, res) => {

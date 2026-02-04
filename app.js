@@ -1,23 +1,24 @@
-// Cortex Demo - Self-Learning Agent Visualization
+// Cortex Demo - Real-time Agent Visualization
+// Connects to live SSE stream from backend
+
+// Configuration
+const API_URL = window.location.hostname === 'localhost' 
+  ? 'http://localhost:4021' 
+  : 'https://api.crtx.tech'; // Update when deployed
 
 // State
-let running = false;
-let iteration = 0;
+let eventSource = null;
 let metrics = {
   totalActions: 0,
   successfulActions: 0,
   reflectionScores: [],
   strategiesLearned: 0,
   milestones: [],
+  qTableSize: 0,
+  epsilon: 0.3,
+  lessonsLearned: 0,
+  skillsExtracted: 0,
 };
-
-const strategies = [
-  { name: 'Web Research', successRate: 0.6 },
-  { name: 'Market Monitor', successRate: 0.7 },
-  { name: 'Wallet Analyzer', successRate: 0.65 },
-];
-
-const tools = ['search', 'fetch', 'prices', 'news', 'wallet'];
 
 // DOM Elements
 const activityLog = document.getElementById('activity-log');
@@ -26,189 +27,199 @@ const resetBtn = document.getElementById('reset-demo');
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-  startBtn.addEventListener('click', toggleDemo);
-  resetBtn.addEventListener('click', resetDemo);
+  startBtn?.addEventListener('click', toggleDemo);
+  resetBtn?.addEventListener('click', resetDemo);
 });
 
 function toggleDemo() {
-  if (running) {
-    running = false;
-    startBtn.textContent = '▶️ Start Demo';
-    log('Agent stopped', 'system');
+  if (eventSource) {
+    stopDemo();
   } else {
-    running = true;
-    startBtn.textContent = '⏸️ Pause';
-    log('Starting Cortex agent...', 'system');
-    log('Goals: Research crypto trends, Monitor prices', 'info');
-    runLoop();
+    startDemo();
   }
 }
 
+async function startDemo() {
+  // Check for API key
+  let apiKey = localStorage.getItem('anthropic_api_key');
+  
+  if (!apiKey) {
+    apiKey = prompt('Enter your Anthropic API key to run the live demo:');
+    if (!apiKey) {
+      log('❌ API key required for live demo', 'error');
+      return;
+    }
+    localStorage.setItem('anthropic_api_key', apiKey);
+  }
+
+  startBtn.textContent = '⏸️ Stop';
+  startBtn.classList.add('running');
+  log('🚀 Connecting to Cortex agent...', 'system');
+
+  try {
+    // Connect to SSE stream
+    const url = `${API_URL}/agent/stream?apiKey=${encodeURIComponent(apiKey)}&iterations=15`;
+    eventSource = new EventSource(url);
+
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      handleEvent(data);
+    };
+
+    eventSource.onerror = (error) => {
+      console.error('SSE Error:', error);
+      log('❌ Connection error. Check API key and try again.', 'error');
+      stopDemo();
+    };
+
+  } catch (error) {
+    log(`❌ Failed to connect: ${error.message}`, 'error');
+    stopDemo();
+  }
+}
+
+function stopDemo() {
+  if (eventSource) {
+    eventSource.close();
+    eventSource = null;
+  }
+  startBtn.textContent = '▶️ Start Demo';
+  startBtn.classList.remove('running');
+  log('Agent stopped', 'system');
+}
+
 function resetDemo() {
-  running = false;
-  iteration = 0;
+  stopDemo();
   metrics = {
     totalActions: 0,
     successfulActions: 0,
     reflectionScores: [],
     strategiesLearned: 0,
     milestones: [],
+    qTableSize: 0,
+    epsilon: 0.3,
+    lessonsLearned: 0,
+    skillsExtracted: 0,
   };
-  strategies.forEach(s => s.successRate = 0.5 + Math.random() * 0.3);
-  
-  activityLog.innerHTML = '<div class="log-entry log-system">Click "Start Demo" to begin...</div>';
-  startBtn.textContent = '▶️ Start Demo';
+  activityLog.innerHTML = '<div class="log-entry log-system">Click "Start Demo" to run live Cortex agent...</div>';
   updateMetricsDisplay();
   updateChart();
   document.getElementById('milestones-section').style.display = 'none';
 }
 
-async function runLoop() {
-  while (running && iteration < 50) {
-    iteration++;
-    
-    // 1. PERCEIVE
-    log(`[Iteration ${iteration}] Perceiving environment...`, 'perceive');
-    await sleep(300);
-    
-    // 2. REASON - Select strategy
-    const strategy = selectStrategy();
-    log(`Selected strategy: ${strategy.name} (${(strategy.successRate * 100).toFixed(0)}% success)`, 'reason');
-    await sleep(300);
-    
-    // 3. ACT - Execute actions
-    const actions = generateActions(strategy);
-    const results = [];
-    
-    for (const action of actions) {
-      const success = Math.random() < (strategy.successRate + (Math.random() * 0.2 - 0.1));
-      results.push(success);
+function handleEvent(event) {
+  switch (event.type) {
+    case 'start':
+      log(`🧠 ${event.data.message}`, 'system');
+      if (event.data.model) {
+        log(`   Using ${event.data.model}`, 'info');
+      }
+      break;
+
+    case 'perceive':
+      log(`👁️ ${event.data.message}`, 'perceive');
+      break;
+
+    case 'reason':
+      log(`🤔 ${event.data.message}`, 'reason');
+      break;
+
+    case 'act':
+      if (event.data.level === 'success') {
+        log(`✓ ${event.data.message}`, 'success');
+        metrics.successfulActions++;
+      } else if (event.data.level === 'error') {
+        log(`✗ ${event.data.message}`, 'error');
+      } else {
+        log(`⚡ ${event.data.message}`, 'info');
+      }
       metrics.totalActions++;
-      if (success) metrics.successfulActions++;
-      
-      log(`Tool: ${action.tool} → ${success ? '✓ Success' : '✗ Failed'}`, success ? 'success' : 'error');
-      await sleep(200);
-    }
-    
-    // 4. REFLECT
-    const score = results.filter(r => r).length / results.length;
-    metrics.reflectionScores.push(score);
-    
-    const scoreClass = score >= 0.7 ? 'success' : score >= 0.5 ? 'warning' : 'error';
-    log(`Reflection score: ${(score * 100).toFixed(0)}%`, scoreClass);
-    
-    // 5. LEARN - Update strategy
-    if (score < 0.5) {
-      log('Score below threshold, updating strategy...', 'learn');
-      strategy.successRate = strategy.successRate * 0.7 + score * 0.3;
-      
-      // Maybe create new strategy
-      if (score < 0.3 && Math.random() < 0.3) {
-        const newStrategy = {
-          name: `${strategy.name} v${strategies.length}`,
-          successRate: 0.55,
-        };
-        strategies.push(newStrategy);
-        metrics.strategiesLearned++;
-        log(`Created new strategy: ${newStrategy.name}`, 'learn');
+      break;
+
+    case 'reflect':
+      const score = parseFloat(event.data.message.match(/(\d+)%/)?.[1] || '50') / 100;
+      metrics.reflectionScores.push(score);
+      const scoreClass = score >= 0.7 ? 'success' : score >= 0.5 ? 'warning' : 'error';
+      log(`📊 ${event.data.message}`, scoreClass);
+      break;
+
+    case 'learn':
+      log(`📚 ${event.data.message}`, 'learn');
+      if (event.data.message.includes('Skill')) {
+        metrics.skillsExtracted++;
       }
-    } else {
-      // Reinforce successful strategy
-      strategy.successRate = Math.min(0.95, strategy.successRate * 0.9 + score * 0.1);
-    }
-    
-    // 6. CHECK MILESTONES
-    if (metrics.reflectionScores.length >= 10) {
-      const recent = metrics.reflectionScores.slice(-10);
-      const recentAvg = recent.reduce((a, b) => a + b, 0) / 10;
-      
-      const older = metrics.reflectionScores.slice(-20, -10);
-      if (older.length >= 5) {
-        const olderAvg = older.reduce((a, b) => a + b, 0) / older.length;
-        const improvement = recentAvg - olderAvg;
-        
-        if (improvement >= 0.15) {
-          recordMilestone({
-            type: 'success_rate_improved',
-            description: `Success rate improved by ${(improvement * 100).toFixed(1)}%`,
-            before: olderAvg,
-            after: recentAvg,
-          });
-        }
+      if (event.data.message.includes('lesson') || event.data.message.includes('Learned')) {
+        metrics.lessonsLearned++;
       }
-    }
-    
-    updateMetricsDisplay();
-    updateChart();
-    
-    await sleep(500);
-  }
-  
-  if (iteration >= 50) {
-    running = false;
-    startBtn.textContent = '▶️ Start Demo';
-    log('Demo complete! Agent ran 50 iterations.', 'system');
-  }
-}
+      break;
 
-function selectStrategy() {
-  // Exploration vs exploitation
-  if (Math.random() < 0.2) {
-    return strategies[Math.floor(Math.random() * strategies.length)];
-  }
-  return strategies.reduce((best, s) => s.successRate > best.successRate ? s : best);
-}
+    case 'milestone':
+      log(`🎯 MILESTONE: ${event.data.description}`, 'milestone');
+      if (event.data.txSignature) {
+        log(`   ⛓️ On-chain: ${event.data.txSignature.slice(0, 24)}...`, 'chain');
+      }
+      metrics.milestones.push(event.data);
+      updateMilestonesDisplay();
+      break;
 
-function generateActions(strategy) {
-  const numActions = 2 + Math.floor(Math.random() * 2);
-  const actions = [];
-  for (let i = 0; i < numActions; i++) {
-    actions.push({
-      tool: tools[Math.floor(Math.random() * tools.length)],
-      purpose: 'Execute step ' + (i + 1),
-    });
-  }
-  return actions;
-}
+    case 'metrics':
+      // Final metrics from agent
+      const m = event.data.metrics;
+      metrics.qTableSize = m.qTableSize || 0;
+      metrics.epsilon = m.epsilon || 0.3;
+      metrics.lessonsLearned = m.totalLessons || 0;
+      metrics.skillsExtracted = m.totalSkills || 0;
+      log(`📈 Final: ${m.successfulActions}/${m.totalActions} actions succeeded`, 'info');
+      break;
 
-function recordMilestone(milestone) {
-  milestone.timestamp = Date.now();
-  milestone.txSignature = `demo_${Math.random().toString(36).slice(2, 10)}_${Date.now()}`;
-  metrics.milestones.push(milestone);
-  
-  log(`🎯 MILESTONE: ${milestone.description}`, 'milestone');
-  log(`   On-chain: ${milestone.txSignature.slice(0, 20)}...`, 'chain');
-  
-  updateMilestonesDisplay();
+    case 'complete':
+      log(`✅ ${event.data.message}`, 'system');
+      log(`   Final success rate: ${event.data.finalSuccessRate}%`, 'success');
+      stopDemo();
+      break;
+
+    case 'error':
+      log(`❌ Error: ${event.data.message}`, 'error');
+      break;
+  }
+
+  updateMetricsDisplay();
+  updateChart();
 }
 
 function updateMetricsDisplay() {
-  document.getElementById('total-actions').textContent = metrics.totalActions;
+  const setElement = (id, value) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+  };
+
+  setElement('total-actions', metrics.totalActions);
   
   const successRate = metrics.totalActions > 0 
     ? (metrics.successfulActions / metrics.totalActions * 100).toFixed(1) 
-    : 0;
-  document.getElementById('success-rate').textContent = successRate + '%';
+    : '0';
+  setElement('success-rate', successRate + '%');
   
   const avgReflection = metrics.reflectionScores.length > 0
     ? (metrics.reflectionScores.reduce((a, b) => a + b, 0) / metrics.reflectionScores.length * 100).toFixed(1)
-    : 0;
-  document.getElementById('reflection-avg').textContent = avgReflection + '%';
+    : '0';
+  setElement('reflection-avg', avgReflection + '%');
   
-  document.getElementById('strategies-learned').textContent = metrics.strategiesLearned;
-  document.getElementById('milestones').textContent = metrics.milestones.length;
+  setElement('strategies-learned', metrics.skillsExtracted);
+  setElement('milestones', metrics.milestones.length);
 }
 
 function updateChart() {
   const chart = document.getElementById('chart');
+  if (!chart) return;
+  
   const scores = metrics.reflectionScores.slice(-20);
   
   if (scores.length === 0) {
-    chart.innerHTML = '<div class="chart-line"></div>';
+    chart.innerHTML = '<div class="chart-placeholder">Waiting for data...</div>';
     return;
   }
   
-  // Create SVG chart
   const width = chart.offsetWidth || 300;
   const height = 80;
   const points = scores.map((s, i) => ({
@@ -235,38 +246,43 @@ function updateChart() {
 function updateMilestonesDisplay() {
   const section = document.getElementById('milestones-section');
   const list = document.getElementById('milestones-list');
+  if (!section || !list) return;
   
   if (metrics.milestones.length > 0) {
     section.style.display = 'block';
     list.innerHTML = metrics.milestones.map(m => `
       <div class="milestone-card">
-        <div class="milestone-type">${m.type.replace(/_/g, ' ')}</div>
+        <div class="milestone-type">${(m.type || 'milestone').replace(/_/g, ' ')}</div>
         <div class="milestone-desc">${m.description}</div>
-        <div class="milestone-metrics">
-          <span>Before: ${(m.before * 100).toFixed(1)}%</span>
-          <span>After: ${(m.after * 100).toFixed(1)}%</span>
-        </div>
-        <div class="milestone-tx">
-          <a href="#" onclick="return false;">⛓️ ${m.txSignature.slice(0, 24)}...</a>
-        </div>
+        ${m.metrics ? `
+          <div class="milestone-metrics">
+            <span>Before: ${(m.metrics.before * 100).toFixed(1)}%</span>
+            <span>After: ${(m.metrics.after * 100).toFixed(1)}%</span>
+          </div>
+        ` : ''}
+        ${m.txSignature ? `
+          <div class="milestone-tx">
+            <a href="https://solscan.io/tx/${m.txSignature}?cluster=devnet" target="_blank">
+              ⛓️ ${m.txSignature.slice(0, 24)}...
+            </a>
+          </div>
+        ` : ''}
       </div>
     `).join('');
   }
 }
 
 function log(message, type = 'info') {
+  if (!activityLog) return;
+  
   const entry = document.createElement('div');
   entry.className = `log-entry log-${type}`;
   entry.textContent = message;
   activityLog.appendChild(entry);
   activityLog.scrollTop = activityLog.scrollHeight;
   
-  // Keep only last 50 entries
-  while (activityLog.children.length > 50) {
+  // Keep only last 100 entries
+  while (activityLog.children.length > 100) {
     activityLog.removeChild(activityLog.firstChild);
   }
-}
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
 }
