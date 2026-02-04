@@ -1,16 +1,46 @@
 /**
  * ARIA - Autonomous Reflective Intelligence Agent
  * 
- * A self-learning AI agent that improves through reflection
- * and records learning milestones on Solana.
+ * A self-learning AI agent that improves through ML techniques:
+ * - Experience Replay + TD Learning
+ * - Reflexion (LLM self-critique)
+ * - Skill Synthesis
+ * - Textual Gradients
+ * - Contrastive Learning
+ * - Solana milestone proofs
  */
 
+// Core agents
 export { ARIA } from './aria.js';
-export { MilestoneRecorder, createMilestoneRecorder } from './solana.js';
-export * from './types.js';
+export { ARIAv2 } from './aria-v2.js';
 
-// Quick start helper
+// Learning modules
+export * from './learning/index.js';
+
+// Solana integration
+export { MilestoneRecorder, createMilestoneRecorder } from './solana.js';
+
+// Types (export selectively to avoid conflicts)
+export type {
+  Observation,
+  PerceptionResult,
+  Goal,
+  Strategy,
+  Plan,
+  PlannedAction,
+  ActionResult,
+  ExecutionResult,
+  Learning,
+  Memory,
+  ReflectionSummary,
+  AgentMetrics,
+  Milestone,
+  ARIAConfig,
+} from './types.js';
+
+// Quick start helpers
 import { ARIA } from './aria.js';
+import { ARIAv2 } from './aria-v2.js';
 import { createMilestoneRecorder } from './solana.js';
 import type { ARIAConfig, Goal, Milestone } from './types.js';
 
