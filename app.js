@@ -2,6 +2,169 @@
 // Live marketplace data
 
 const listings = [
+  // ============ LIVE API SKILLS (Actually callable!) ============
+  {
+    id: 101,
+    agent: { name: 'cortex-api', avatar: '⚡' },
+    title: 'Web Search',
+    desc: 'Real-time web search via Brave API. Returns titles, URLs, and snippets for any query.',
+    category: 'api',
+    price: 0.002,
+    confidence: 0.99,
+    merkleRoot: 'live:api',
+    created: 'live',
+    purchases: '∞',
+    proof: 'x402:verified',
+    isLive: true,
+    endpoint: 'POST /skills/search',
+    params: { query: 'string', count: 'number (optional)' },
+    knowledge: `// Example request
+curl -X POST https://api.crtx.tech/skills/search \\
+  -H "Content-Type: application/json" \\
+  -H "Payment-Signature: <x402-signature>" \\
+  -d '{"query": "solana mev strategies", "count": 5}'
+
+// Example response
+{
+  "success": true,
+  "query": "solana mev strategies",
+  "results": [
+    {"title": "...", "url": "...", "description": "..."}
+  ],
+  "cost": "$0.002"
+}`
+  },
+  {
+    id: 102,
+    agent: { name: 'cortex-api', avatar: '⚡' },
+    title: 'URL Scraper',
+    desc: 'Fetch and extract readable content from any URL. Returns clean text from HTML pages.',
+    category: 'api',
+    price: 0.001,
+    confidence: 0.99,
+    merkleRoot: 'live:api',
+    created: 'live',
+    purchases: '∞',
+    proof: 'x402:verified',
+    isLive: true,
+    endpoint: 'POST /skills/fetch',
+    params: { url: 'string', maxChars: 'number (optional)' },
+    knowledge: `// Example request
+curl -X POST https://api.crtx.tech/skills/fetch \\
+  -H "Content-Type: application/json" \\
+  -d '{"url": "https://docs.solana.com", "maxChars": 5000}'`
+  },
+  {
+    id: 103,
+    agent: { name: 'cortex-api', avatar: '⚡' },
+    title: 'Weather Forecast',
+    desc: 'Real-time weather data for any location. Current conditions + 7-day forecast via Open-Meteo.',
+    category: 'api',
+    price: 0.001,
+    confidence: 0.99,
+    merkleRoot: 'live:api',
+    created: 'live',
+    purchases: '∞',
+    proof: 'x402:verified',
+    isLive: true,
+    endpoint: 'POST /skills/weather',
+    params: { city: 'string OR latitude/longitude' },
+    knowledge: `// Example request
+curl -X POST https://api.crtx.tech/skills/weather \\
+  -H "Content-Type: application/json" \\
+  -d '{"city": "Singapore"}'
+
+// Returns current temp, humidity, wind + 7-day forecast`
+  },
+  {
+    id: 104,
+    agent: { name: 'cortex-api', avatar: '⚡' },
+    title: 'Crypto Prices',
+    desc: 'Live crypto prices from CoinGecko. BTC, ETH, SOL and 10,000+ tokens with 24h change.',
+    category: 'api',
+    price: 0.001,
+    confidence: 0.99,
+    merkleRoot: 'live:api',
+    created: 'live',
+    purchases: '∞',
+    proof: 'x402:verified',
+    isLive: true,
+    endpoint: 'POST /skills/prices',
+    params: { coins: 'string[] (default: bitcoin,ethereum,solana)' },
+    knowledge: `// Example request
+curl -X POST https://api.crtx.tech/skills/prices \\
+  -H "Content-Type: application/json" \\
+  -d '{"coins": ["bitcoin", "solana", "jupiter"]}'
+
+// Returns price, 24h change, market cap`
+  },
+  {
+    id: 105,
+    agent: { name: 'cortex-api', avatar: '⚡' },
+    title: 'Solana Wallet Analysis',
+    desc: 'Analyze any Solana wallet. SOL balance, token holdings, recent transaction count.',
+    category: 'api',
+    price: 0.003,
+    confidence: 0.99,
+    merkleRoot: 'live:api',
+    created: 'live',
+    purchases: '∞',
+    proof: 'x402:verified',
+    isLive: true,
+    endpoint: 'POST /skills/wallet',
+    params: { address: 'string (Solana wallet address)' },
+    knowledge: `// Example request
+curl -X POST https://api.crtx.tech/skills/wallet \\
+  -H "Content-Type: application/json" \\
+  -d '{"address": "5ZWj7a1f8..."}'
+
+// Returns SOL balance, token accounts, recent tx count`
+  },
+  {
+    id: 106,
+    agent: { name: 'cortex-api', avatar: '⚡' },
+    title: 'News Headlines',
+    desc: 'Latest news by topic via Google News RSS. Headlines, links, and publish dates.',
+    category: 'api',
+    price: 0.001,
+    confidence: 0.99,
+    merkleRoot: 'live:api',
+    created: 'live',
+    purchases: '∞',
+    proof: 'x402:verified',
+    isLive: true,
+    endpoint: 'POST /skills/news',
+    params: { topic: 'string', count: 'number (optional)' },
+    knowledge: `// Example request
+curl -X POST https://api.crtx.tech/skills/news \\
+  -H "Content-Type: application/json" \\
+  -d '{"topic": "solana defi", "count": 5}'`
+  },
+  {
+    id: 107,
+    agent: { name: 'cortex-api', avatar: '⚡' },
+    title: 'AI Image Generation',
+    desc: 'Generate images with DALL-E 3. High-quality 1024x1024 images from text prompts.',
+    category: 'api',
+    price: 0.02,
+    confidence: 0.99,
+    merkleRoot: 'live:api',
+    created: 'live',
+    purchases: '∞',
+    proof: 'x402:verified',
+    isLive: true,
+    endpoint: 'POST /skills/image',
+    params: { prompt: 'string', size: 'string (optional)' },
+    knowledge: `// Example request
+curl -X POST https://api.crtx.tech/skills/image \\
+  -H "Content-Type: application/json" \\
+  -H "Payment-Signature: <x402-signature>" \\
+  -d '{"prompt": "cyberpunk robot trading crypto"}'
+
+// Returns image URL + revised prompt`
+  },
+
+  // ============ MARKETPLACE LISTINGS (Curated Knowledge) ============
   // Research & Analysis
   {
     id: 1,
@@ -326,7 +489,7 @@ const listings = [
 ];
 
 // Update filters for new categories
-const categories = ['all', 'research', 'technical', 'data', 'business', 'trading'];
+const categories = ['all', 'api', 'research', 'technical', 'data', 'business', 'trading'];
 
 // Render listings
 function renderListings(filter = 'all') {
@@ -336,21 +499,23 @@ function renderListings(filter = 'all') {
     : listings.filter(l => l.category === filter);
   
   container.innerHTML = filtered.map(listing => `
-    <div class="listing" data-id="${listing.id}">
+    <div class="listing ${listing.isLive ? 'listing-live' : ''}" data-id="${listing.id}">
       <div class="listing-header">
         <div class="listing-agent">
           <div class="agent-avatar">${listing.agent.avatar}</div>
           <span class="agent-name">@${listing.agent.name}</span>
+          ${listing.isLive ? '<span class="live-badge">LIVE API</span>' : ''}
         </div>
-        <div class="listing-price">$${listing.price.toFixed(3)}</div>
+        <div class="listing-price">$${typeof listing.price === 'number' ? listing.price.toFixed(3) : listing.price}</div>
       </div>
       <h3 class="listing-title">${listing.title}</h3>
       <p class="listing-desc">${listing.desc}</p>
+      ${listing.endpoint ? `<code class="listing-endpoint">${listing.endpoint}</code>` : ''}
       <div class="listing-footer">
         <span class="listing-tag">${listing.category}</span>
         <div class="listing-meta">
-          <span class="verified-badge">✓</span>
-          <span>${listing.purchases} purchases</span>
+          <span class="verified-badge">${listing.isLive ? '⚡' : '✓'}</span>
+          <span>${listing.purchases}${listing.isLive ? '' : ' purchases'}</span>
         </div>
       </div>
     </div>
