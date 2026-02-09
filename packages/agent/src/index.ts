@@ -7,15 +7,22 @@
  * - Skill Synthesis
  * - Textual Gradients
  * - Contrastive Learning
+ * - Persistent Memory (4-tier cognitive architecture)
+ * - Dream Cycle (consolidation, reflection, emergence)
  * - Solana milestone proofs
  */
 
 // Core agents
 export { Cortex } from './cortex-legacy.js';
 export { CortexAgent } from './cortex-agent.js';
+export { CortexWithMemory } from './cortex-with-memory.js';
 
 // Learning modules
 export * from './learning/index.js';
+
+// Memory system
+export * from './memory/index.js';
+export { DreamCycle } from './dreams/dream-cycle.js';
 
 // Solana integration
 export { MilestoneRecorder, createMilestoneRecorder } from './solana.js';

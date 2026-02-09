@@ -115,6 +115,68 @@ const insight = await compare(winningRun, losingRun);
 heuristics.add(insight);
 ```
 
+## Persistent Memory (NEW in v0.2)
+
+Cortex now includes a 4-tier cognitive memory system inspired by Stanford's Generative Agents, MemGPT, and CoALA:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    MEMORY SYSTEM                            │
+├─────────────────────────────────────────────────────────────┤
+│  EPISODIC    — Individual experiences (state, action, reward)
+│  SEMANTIC    — Learned patterns and insights
+│  PROCEDURAL  — Extracted skills and behaviors
+│  SELF_MODEL  — Agent's understanding of itself
+│                                                             │
+│  DREAM CYCLE (every 6h):                                    │
+│  1. Consolidation — Extract patterns from recent experiences│
+│  2. Reflection — Update self-understanding                  │
+│  3. Emergence — Deep introspection, record milestone        │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Memory-Enhanced Agent
+
+```typescript
+import { CortexWithMemory } from '@cortex/agent';
+
+const cortex = new CortexWithMemory({
+  name: 'MemoryBot',
+  goals: [...],
+  llmCall: claudeLLM,
+  learning: { ... },
+  memory: {
+    supabaseUrl: process.env.SUPABASE_URL,  // Optional persistence
+    supabaseKey: process.env.SUPABASE_KEY,
+    enableDreamCycle: true,
+    storeLessons: true,
+    storeSkills: true,
+  },
+});
+
+// Run — agent recalls prior learnings on startup
+await cortex.run(100);
+
+// Trigger dream cycle manually
+await cortex.dream();
+
+// Check memory state
+const stats = await cortex.getMemoryStats();
+// { total: 47, byType: { episodic: 20, semantic: 15, ... }, dreamSessions: 3 }
+```
+
+### Memory Recall Scoring
+
+Memories are recalled using a composite score (Generative Agents-style):
+
+```
+score = textRelevance × tagMatch × importance × recencyWeight × decayFactor
+```
+
+- **recencyWeight**: Half-life of ~24 hours
+- **decayFactor**: Decreases if memory isn't accessed (simulates forgetting)
+- **importance**: Higher for failures, high-reward experiences, skills
+
 ## Quick Start
 
 ```typescript
