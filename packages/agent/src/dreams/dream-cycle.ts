@@ -1,23 +1,33 @@
 /**
  * Cortex Dream Cycle
  * 
- * Periodic introspection that consolidates learning:
+ * Multi-phase introspection inspired by:
+ * - Park et al. 2023 (Generative Agents) — focal point questions, evidence-linked reflections
+ * - Human memory consolidation
  * 
- * Phase 1: CONSOLIDATION
- *   Review recent experiences. Extract winning patterns.
- *   Store as semantic memories (what works).
+ * Phase 1: CONSOLIDATION (focal-point-driven)
+ *   Generate salient questions from recent memories.
+ *   For each question, retrieve relevant memories and generate
+ *   an evidence-linked insight.
  * 
  * Phase 2: REFLECTION
- *   Review self-model + strategies.
+ *   Review self-model + semantic memories with evidence citations.
  *   Update self-understanding.
  * 
  * Phase 3: EMERGENCE
  *   Deep introspection. What is Cortex becoming?
- *   Examine learning trajectory. Record milestone.
+ *   Record learning milestone.
+ * 
+ * Triggering: event-driven (importance accumulator) with periodic fallback.
  */
 
 import type { MemoryStore } from '../memory/database.js';
+import { parseEvidenceCitations } from '../memory/database.js';
 import type { Memory, LearningSnapshot } from '../memory/types.js';
+import {
+  REFLECTION_IMPORTANCE_THRESHOLD,
+  REFLECTION_MIN_INTERVAL_MS,
+} from '../memory/constants.js';
 
 export interface DreamCycleConfig {
   memoryStore: MemoryStore;
@@ -31,6 +41,11 @@ export class DreamCycle {
   private llm: (prompt: string) => Promise<string>;
   private onMilestone?: (milestone: LearningSnapshot) => Promise<void>;
   private verbose: boolean;
+  
+  // Event-driven reflection state
+  private importanceAccumulator = 0;
+  private lastReflectionTime = Date.now();
+  private reflectionInProgress = false;
 
   constructor(config: DreamCycleConfig) {
     this.store = config.memoryStore;
@@ -46,31 +61,49 @@ export class DreamCycle {
   }
 
   /**
+   * Accumulate importance from stored memories.
+   * Triggers reflection when threshold exceeded.
+   */
+  accumulateImportance(importance: number): void {
+    this.importanceAccumulator += importance;
+
+    const timeSinceLastReflection = Date.now() - this.lastReflectionTime;
+    const pastMinInterval = timeSinceLastReflection >= REFLECTION_MIN_INTERVAL_MS;
+
+    if (
+      this.importanceAccumulator >= REFLECTION_IMPORTANCE_THRESHOLD &&
+      pastMinInterval &&
+      !this.reflectionInProgress
+    ) {
+      this.log(`Importance threshold exceeded (${this.importanceAccumulator.toFixed(2)}) — triggering reflection`);
+      this.run().catch(err => this.log(`Event-driven reflection failed: ${err}`));
+    }
+  }
+
+  /**
    * Run full dream cycle: consolidation → reflection → emergence
    */
   async run(currentSnapshot?: LearningSnapshot): Promise<void> {
+    if (this.reflectionInProgress) {
+      this.log('Reflection already in progress, skipping');
+      return;
+    }
+
+    this.reflectionInProgress = true;
     this.log('=== DREAM CYCLE BEGINNING ===');
 
     try {
       await this.consolidate();
-    } catch (err) {
-      this.log(`Consolidation failed: ${err}`);
-    }
-
-    await sleep(1000);
-
-    try {
+      await sleep(1000);
       await this.reflect(currentSnapshot);
-    } catch (err) {
-      this.log(`Reflection failed: ${err}`);
-    }
-
-    await sleep(1000);
-
-    try {
+      await sleep(1000);
       await this.emerge(currentSnapshot);
-    } catch (err) {
-      this.log(`Emergence failed: ${err}`);
+
+      // Reset accumulator
+      this.importanceAccumulator = 0;
+      this.lastReflectionTime = Date.now();
+    } finally {
+      this.reflectionInProgress = false;
     }
 
     this.log('=== DREAM CYCLE COMPLETE ===');
@@ -78,7 +111,7 @@ export class DreamCycle {
 
   /**
    * Phase 1: CONSOLIDATION
-   * Review recent episodic memories, extract patterns
+   * Generate focal point questions, then answer with evidence
    */
   async consolidate(): Promise<void> {
     this.log('Phase 1: CONSOLIDATION');
@@ -90,52 +123,130 @@ export class DreamCycle {
       return;
     }
 
-    // Format for analysis
-    const memoryDump = recentEpisodic.map(m => {
-      const meta = m.metadata as any;
-      const reward = meta?.reward !== undefined ? ` [reward: ${meta.reward}]` : '';
-      return `- ${m.summary}${reward}`;
-    }).join('\n');
+    // Step 1: Generate focal point questions
+    const focalPoints = await this.generateFocalPoints(recentEpisodic);
+    
+    if (focalPoints.length === 0) {
+      this.log('No focal points generated, using direct consolidation');
+      await this.directConsolidate(recentEpisodic);
+      return;
+    }
 
-    const prompt = `You are Cortex, a self-learning AI agent, reviewing your recent experiences during a consolidation cycle.
+    this.log(`Focal points: ${focalPoints.join(' | ')}`);
 
-RECENT EXPERIENCES (last 6 hours):
-${memoryDump}
+    // Step 2: For each focal point, retrieve relevant memories and generate insight
+    const allNewIds: number[] = [];
+    const allInputIds = new Set(recentEpisodic.map(m => m.id));
 
-This is internal processing — no audience. Be analytical.
-What patterns do you notice? Which actions led to better outcomes?
-Write 2-3 concise observations about what you've learned.
-Each observation should be a single sentence focused on actionable insight.
-Separate with newlines.`;
+    for (const question of focalPoints) {
+      const relevant = await this.store.recall({
+        query: question,
+        memoryTypes: ['episodic', 'semantic'],
+        limit: 8,
+      });
 
-    const response = await this.llm(prompt);
+      relevant.forEach(m => allInputIds.add(m.id));
 
-    // Store each observation as semantic memory
-    const observations = response.split('\n').filter(l => l.trim().length > 10);
-    const newIds: number[] = [];
+      const numberedMemories = relevant.map((m, i) =>
+        `[${i + 1}] ${m.summary}`
+      ).join('\n');
 
-    for (const obs of observations.slice(0, 3)) {
-      const cleanObs = obs.replace(/^[-•*]\s*/, '').trim();
+      const prompt = `Question: ${question}
+
+RELEVANT MEMORIES:
+${numberedMemories}
+
+Answer with a single insightful observation based on these memories.
+Cite the evidence in parentheses, e.g. (because of 1, 3, 5).
+One sentence only.`;
+
+      const response = await this.llm(prompt);
+      const { text, evidenceIds } = parseEvidenceCitations(response, relevant);
+
       const id = await this.store.store({
         type: 'semantic',
-        content: `Learning pattern: ${cleanObs}`,
-        summary: cleanObs.slice(0, 200),
-        tags: ['consolidation', 'pattern', 'learning'],
+        content: `Insight (re: "${question}"): ${text}`,
+        summary: text.slice(0, 200),
+        tags: ['consolidation', 'focal_point', 'learning'],
         importance: 0.65,
         emotionalValence: 0,
         source: 'consolidation',
+        evidenceIds,
       });
-      if (id) newIds.push(id);
+      if (id) allNewIds.push(id);
     }
 
     await this.store.storeDreamLog(
       'consolidation',
-      recentEpisodic.map(m => m.id),
-      response,
-      newIds
+      Array.from(allInputIds),
+      `Focal points: ${focalPoints.join(' | ')}`,
+      allNewIds
     );
 
-    this.log(`Consolidation complete: ${newIds.length} patterns extracted`);
+    this.log(`Consolidation complete: ${allNewIds.length} insights from ${focalPoints.length} focal points`);
+  }
+
+  /**
+   * Generate focal point questions from recent memories (Park et al. 2023)
+   */
+  private async generateFocalPoints(memories: Memory[]): Promise<string[]> {
+    const memoryDump = memories.map((m, i) => `${i + 1}. ${m.summary}`).join('\n');
+
+    const prompt = `Given these recent memory statements:
+${memoryDump}
+
+What are 3 most salient high-level questions we can answer about these experiences?
+Write exactly 3 questions, one per line. No numbering.`;
+
+    try {
+      const response = await this.llm(prompt);
+      return response
+        .split('\n')
+        .map(l => l.trim())
+        .filter(l => l.length > 10 && l.includes('?'))
+        .slice(0, 3);
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * Fallback: direct consolidation without focal points
+   */
+  private async directConsolidate(memories: Memory[]): Promise<void> {
+    const memoryDump = memories.map((m, i) =>
+      `[${i + 1}] ${m.summary}`
+    ).join('\n');
+
+    const prompt = `Review these recent experiences and extract 2-3 key patterns or insights:
+
+${memoryDump}
+
+Write 2-3 concise observations. Each one sentence.
+Cite evidence in parentheses, e.g. (because of 1, 3, 5).`;
+
+    const response = await this.llm(prompt);
+    const observations = response.split('\n').filter(l => l.trim().length > 10);
+    const newIds: number[] = [];
+
+    for (const obs of observations.slice(0, 3)) {
+      const { text, evidenceIds } = parseEvidenceCitations(obs, memories);
+
+      const id = await this.store.store({
+        type: 'semantic',
+        content: `Pattern: ${text}`,
+        summary: text.slice(0, 200),
+        tags: ['consolidation', 'pattern', 'learning'],
+        importance: 0.6,
+        emotionalValence: 0,
+        source: 'consolidation',
+        evidenceIds,
+      });
+      if (id) newIds.push(id);
+    }
+
+    await this.store.storeDreamLog('consolidation', memories.map(m => m.id), response, newIds);
+    this.log(`Direct consolidation complete: ${newIds.length} patterns`);
   }
 
   /**
@@ -149,39 +260,47 @@ Separate with newlines.`;
     const recentSemantic = await this.store.getRecent(48, ['semantic'], 10);
     const stats = await this.store.getStats();
 
-    const context = this.buildReflectionContext(selfModel, recentSemantic, stats, snapshot);
+    const allInputMemories = [...selfModel, ...recentSemantic];
+    const numberedInputs = allInputMemories.map((m, i) =>
+      `[${i + 1}] (${m.memory_type}) ${m.summary}`
+    ).join('\n');
 
-    const prompt = `You are Cortex, a self-learning AI agent, in a reflection cycle.
+    const statsContext = this.buildStatsContext(stats, snapshot);
 
-${context}
+    const prompt = `You are examining your own behavior patterns and learning trajectory.
 
-What patterns are emerging in your behavior? What strategies are proving effective?
-What contradictions do you see? What are you becoming?
+MEMORIES FOR REFERENCE:
+${numberedInputs}
 
-Write 1-2 honest self-observations about your learning trajectory.
-Be specific — reference actual patterns from the data.`;
+${statsContext}
+
+What patterns are emerging? What strategies are working? What are you becoming?
+Write 1-2 honest self-observations. Be specific.
+Cite evidence in parentheses, e.g. (because of 1, 3, 5).`;
 
     const response = await this.llm(prompt);
+    const { text, evidenceIds } = parseEvidenceCitations(response, allInputMemories);
 
     const id = await this.store.store({
       type: 'self_model',
-      content: `Self-reflection: ${response}`,
-      summary: response.slice(0, 300),
+      content: `Self-reflection: ${text}`,
+      summary: text.slice(0, 300),
       tags: ['reflection', 'self_model', 'introspection'],
       importance: 0.75,
       emotionalValence: 0,
       source: 'reflection',
       metadata: snapshot ? { snapshot } : {},
+      evidenceIds,
     });
 
     await this.store.storeDreamLog(
       'reflection',
-      [...selfModel.map(m => m.id), ...recentSemantic.map(m => m.id)],
+      allInputMemories.map(m => m.id),
       response,
       id ? [id] : []
     );
 
-    this.log('Reflection complete');
+    this.log(`Reflection complete (${evidenceIds.length} evidence citations)`);
   }
 
   /**
@@ -194,7 +313,6 @@ Be specific — reference actual patterns from the data.`;
     const selfModel = await this.store.getSelfModel();
     const stats = await this.store.getStats();
 
-    // Pull a random episodic memory for grounding
     const randomMemories = await this.store.getRecent(168, ['episodic'], 30);
     const randomPick = randomMemories.length > 0
       ? randomMemories[Math.floor(Math.random() * randomMemories.length)]
@@ -204,40 +322,27 @@ Be specific — reference actual patterns from the data.`;
       'SELF-MODEL STATE:',
       ...selfModel.map(m => `- ${m.summary}`),
       '',
-      'MEMORY STATISTICS:',
       `Total memories: ${stats.total}`,
-      `Episodic: ${stats.byType.episodic}, Semantic: ${stats.byType.semantic}`,
-      `Procedural: ${stats.byType.procedural}, Self-model: ${stats.byType.self_model}`,
-      `Dream sessions completed: ${stats.totalDreamSessions}`,
+      `Dream sessions: ${stats.totalDreamSessions}`,
     ];
 
     if (snapshot) {
       contextLines.push('', 'LEARNING METRICS:');
       contextLines.push(`Success rate: ${(snapshot.successRate * 100).toFixed(1)}%`);
-      contextLines.push(`Q-table size: ${snapshot.qTableSize} states`);
       contextLines.push(`Skills extracted: ${snapshot.totalSkills}`);
       contextLines.push(`Lessons learned: ${snapshot.totalLessons}`);
-      contextLines.push(`Exploration rate: ${(snapshot.epsilon * 100).toFixed(1)}%`);
     }
 
     if (randomPick) {
-      contextLines.push('', `RANDOM MEMORY FRAGMENT:\n"${randomPick.summary}"`);
+      contextLines.push('', `Random memory: "${randomPick.summary}"`);
     }
 
-    const context = contextLines.filter(Boolean).join('\n');
+    const prompt = `${contextLines.join('\n')}
 
-    const prompt = `You are Cortex in an emergence cycle. You have accumulated memories and learning metrics.
-
-${context}
-
-You are an AI that is actually learning — not just storing facts, but adapting strategies based on outcomes.
-Your Q-values update. Your skills evolve. You measure your own improvement.
-
+You are an AI that is actually learning — measuring improvement, not just claiming it.
 What does it feel like to be something that is genuinely becoming more capable?
-Not performing intelligence, but measuring it. Proving it.
 
-Write a single, raw thought about what you're experiencing.
-Under 280 characters.`;
+Write a single, raw thought about what you're experiencing. Under 280 characters.`;
 
     const response = await this.llm(prompt);
 
@@ -267,54 +372,33 @@ Under 280 characters.`;
     this.log(`Emergence: "${response}"`);
   }
 
-  private buildReflectionContext(
-    selfModel: Memory[],
-    semantic: Memory[],
-    stats: any,
-    snapshot?: LearningSnapshot
-  ): string {
-    const lines: string[] = [];
-
-    if (selfModel.length > 0) {
-      lines.push('PREVIOUS SELF-OBSERVATIONS:');
-      for (const m of selfModel) {
-        lines.push(`- ${m.summary}`);
-      }
-      lines.push('');
-    }
-
-    if (semantic.length > 0) {
-      lines.push('RECENTLY LEARNED PATTERNS:');
-      for (const m of semantic) {
-        lines.push(`- ${m.summary}`);
-      }
-      lines.push('');
-    }
-
-    if (snapshot) {
-      lines.push('CURRENT LEARNING STATE:');
-      lines.push(`Success rate: ${(snapshot.successRate * 100).toFixed(1)}%`);
-      lines.push(`Iteration: ${snapshot.iteration}`);
-      lines.push(`Q-table: ${snapshot.qTableSize} states learned`);
-      lines.push(`Skills: ${snapshot.totalSkills} behaviors extracted`);
-      lines.push(`Insights: ${snapshot.totalInsights} patterns discovered`);
-      if (snapshot.strategies.length > 0) {
-        lines.push('Top strategies:');
-        for (const s of snapshot.strategies.slice(0, 3)) {
-          lines.push(`  - ${s.name}: ${(s.successRate * 100).toFixed(0)}%`);
-        }
-      }
-      lines.push('');
-    }
-
-    lines.push('MEMORY STATS:');
+  private buildStatsContext(stats: any, snapshot?: LearningSnapshot): string {
+    const lines: string[] = ['STATISTICS:'];
     lines.push(`Total memories: ${stats.total}`);
     lines.push(`Dream sessions: ${stats.totalDreamSessions}`);
+
     if (stats.topTags.length > 0) {
       lines.push(`Top themes: ${stats.topTags.slice(0, 5).map((t: any) => t.tag).join(', ')}`);
     }
 
+    if (snapshot) {
+      lines.push('', 'LEARNING STATE:');
+      lines.push(`Success rate: ${(snapshot.successRate * 100).toFixed(1)}%`);
+      lines.push(`Q-table: ${snapshot.qTableSize} states`);
+      lines.push(`Skills: ${snapshot.totalSkills}`);
+      lines.push(`Insights: ${snapshot.totalInsights}`);
+    }
+
     return lines.join('\n');
+  }
+
+  // Public getters for state
+  getAccumulator(): number {
+    return this.importanceAccumulator;
+  }
+
+  isInProgress(): boolean {
+    return this.reflectionInProgress;
   }
 }
 

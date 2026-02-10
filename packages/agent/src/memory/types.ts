@@ -25,6 +25,7 @@ export interface Memory {
   created_at: string;
   last_accessed: string;
   decay_factor: number;
+  evidence_ids: number[];     // IDs of source memories (Park et al. 2023)
 }
 
 export interface StoreMemoryOptions {
@@ -38,6 +39,7 @@ export interface StoreMemoryOptions {
   sourceId?: string;
   relatedContext?: string;
   metadata?: Record<string, unknown>;
+  evidenceIds?: number[];     // IDs of source memories (for reflections)
 }
 
 export interface RecallOptions {
