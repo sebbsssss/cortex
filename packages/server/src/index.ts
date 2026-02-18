@@ -7,6 +7,7 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { config } from 'dotenv';
+import { randomBytes } from 'node:crypto';
 
 import { memoryStore } from './store.js';
 import { createPaymentMiddleware } from './x402.js';
@@ -102,23 +103,21 @@ const agents: Map<string, Agent> = new Map();
 const claimCodes: Map<string, string> = new Map();  // claimCode -> agentId
 
 function generateApiKey(): string {
-  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-  return 'crtx_' + Array.from({ length: 32 }, () => 
-    chars[Math.floor(Math.random() * chars.length)]
-  ).join('');
+  return 'crtx_' + randomBytes(24).toString('base64url').slice(0, 32);
 }
 
 function generateAgentId(): string {
-  return Math.random().toString(36).substring(2, 10);
+  return randomBytes(6).toString('base64url').slice(0, 8);
 }
 
 function generateClaimCode(): string {
-  // Format: xxxx-xxxx-xxxx (human-readable)
+  // Format: xxxx-xxxx-xxxx (human-readable, crypto-secure)
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // No confusing chars
-  const part = () => Array.from({ length: 4 }, () => 
-    chars[Math.floor(Math.random() * chars.length)]
+  const bytes = randomBytes(12);
+  const part = (offset: number) => Array.from({ length: 4 }, (_, i) =>
+    chars[bytes[offset + i] % chars.length]
   ).join('');
-  return `${part()}-${part()}-${part()}`;
+  return `${part(0)}-${part(4)}-${part(8)}`;
 }
 
 const BASE_URL = process.env.BASE_URL || 'https://crtx.tech';
